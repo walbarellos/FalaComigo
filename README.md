@@ -1,12 +1,34 @@
 <!--
 
 FALA COMIGO - Comunicação Aumentativa e Alternativa
-==========================================
+========================================== 
+
+[![Fala Comigo](https://img.shields.io/badge/Fala-Comigo-007AFF?style=for-the-badge&logo=speech)](https://github.com/walbarellos/FalaComigo)
+[![Versão](https://img.shields.io/github/v/release/walbarellos/FalaComigo?include_prereleases&style=flat-square)](https://github.com/walbarellos/FalaComigo/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/walbarellos/FalaComigo/total?style=flat-square)](https://github.com/walbarellos/FalaComigo/releases)
+[![Último Commit](https://img.shields.io/github/last-commit/walbarellos/FalaComigo/main?style=flat-square)](https://github.com/walbarellos/FalaComigo/commits/main)
+[![Issues Abertas](https://img.shields.io/github/issues/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/issues)
+[![Forks](https://img.shields.io/github/forks/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/fork)
+[![Stars](https://img.shields.io/github/stars/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/stargazers)
+[![Tamanho Código](https://img.shields.io/github/languages/code-size/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo)
+[![Linhas Código](https://img.shields.io/tokei/lines/github/walbarellos/FalaComigo?type=flat-square)](https://github.com/walbarellos/FalaComigo)
+[![Licença](https://img.shields.io/github/license/walbarellos/FalaComigo?style=flat-square)](LICENSE)
+
+---
+
+[![Android](https://img.shields.io/badge/Android-7.0%2B-green?style=for-the-badge&logo=android)](https://developer.android.com/studio)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.x-purple?style=for-the-badge&logo=kotlin)](https://kotlinlang.org)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-1.5.x-blue?style=for-the-badge)](https://developer.android.com/compose)
+[![Hilt](https://img.shields.io/badge/Hilt-2.48.x-orange?style=for-the-badge)](https://dagger.dev/hilt)
+[![Min SDK](https://img.shields.io/badge/Min%20SDK-API%2024%20%287.0%29-brightgreen?style=flat-square)](https://developer.android.com/studio)
+[![Target SDK](https://img.shields.io/badge/Target%20SDK-API%2034%20%2814%29-blue?style=flat-square)](https://developer.android.com/studio)
+
+---
 
 Este arquivo faz parte do projeto Fala Comigo.
 
 Para informações completas sobre o projeto, visite:
-https://github.com/fala-comigo/fala-comigo
+https://github.com/walbarellos/FalaComigo
 
 ==========================================
 Tabela de Conteúdos
@@ -20,7 +42,7 @@ Tabela de Conteúdos
 7. Instalação e Configuração
 8. Como Contribuir
 9. Roadmap e Versões Futuras
-10. Credits e Agradecimentos
+10. Créditos e Agradecimentos
 11. Licença e Termos Legais
 12. FAQs (Perguntas Frequentes)
 13. Glossário de Termos Técnicos
