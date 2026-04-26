@@ -207,6 +207,9 @@ app/signing/
 *.aab
 output-metadata.json
 
+# MAS NÃO IGNORAR releases - wanted for distribution
+/releases/*.apk
+
 # -------------------------------------------
 # Configurações de Segurança
 # -------------------------------------------
