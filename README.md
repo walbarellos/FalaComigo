@@ -63,6 +63,8 @@ Tabela de Conteúdos
 
 ---
 
+<img width="1672" height="941" alt="e86df9e5-6dd2-48fd-8258-be3bab40f420" src="https://github.com/user-attachments/assets/0c9de3cd-6811-48a9-ad4c-2ae32f0bd8d0" />
+
 ## 2. Visão Geral do Projeto
 
 ### O que é o Fala Comigo?
