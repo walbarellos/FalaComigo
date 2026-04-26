@@ -52,7 +52,7 @@ Tabela de Conteúdos
 ==========================================
 -->
 
-[![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-1.0.0-blue?style=flat-square&logo=semver)](https://github.com/fala-comigo/fala-comigo/releases)
+[![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.2.0-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/licen%C3%A7a-CC%20BY--NC--ND%204.0-orange?style=flat-square)](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.pt_BR)
 [![Plataforma: Android](https://img.shields.io/badge/plataforma-Android-green?style=flat-square&logo=android)](https://developer.android.com/studio)
 [![Linguagem: Kotlin](https://img.shields.io/badge/linguagem-Kotlin-purple?style=flat-square&logo=kotlin)](https://kotlinlang.org)
@@ -922,6 +922,12 @@ Este projetoExiste para garantir que ninguém seja silenciado por falta de ferra
 **Versão Atual:** 1.0.0  
 **Última Atualização:** 2025  
 **Criador:** Willian Albarello  
+**Licença:** CC BY-NC-ND 4.0
+
+---
+
+*Agradecemos por ler este README. Cada pessoa que conhece o projeto ajuda a construir um mundo mais inclusivo.*
+iador:** Willian Albarello  
 **Licença:** CC BY-NC-ND 4.0
 
 ---
