@@ -1,30 +1,20 @@
 package br.com.falacomigo.feature.settings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
+import br.com.falacomigo.feature.communication.CommunicationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,52 +23,93 @@ fun SettingsScreen(
     onNavigateToAccessibility: () -> Unit,
     onNavigateToVoice: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onNavigateToOffline: () -> Unit
+    onNavigateToOffline: () -> Unit,
+    viewModel: CommunicationViewModel = hiltViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurações") },
+                title = { Text("Configurações", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
             )
-        }
+        },
+        containerColor = ColorTokens.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingTokens.Md)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(
+                "Feedback e Voz",
+                style = MaterialTheme.typography.labelLarge,
+                color = ColorTokens.Primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            SettingsSwitchItem(
+                title = "Vibração ao tocar",
+                description = "Sentir um leve toque ao escolher um símbolo",
+                checked = state.vibrationEnabled,
+                onCheckedChange = { viewModel.toggleVibration() }
+            )
+
             SettingsMenuItem(
                 title = "Voz e Fala",
-                description = "Configure como o app fala os símbolos",
+                description = "Configure a velocidade da voz",
                 onClick = onNavigateToVoice
             )
 
-            SettingsMenuItem(
-                title = "Acessibilidade",
-                description = "Texto grande, contraste, modo frase",
-                onClick = onNavigateToAccessibility
-            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = ColorTokens.Outline.copy(alpha = 0.5f))
 
-            SettingsMenuItem(
-                title = "Modo Offline",
-                description = "Verificar kesiapan sem internet",
-                onClick = onNavigateToOffline
+            Text(
+                "Informações",
+                style = MaterialTheme.typography.labelLarge,
+                color = ColorTokens.Primary,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             SettingsMenuItem(
                 title = "Sobre e Licença",
-                description = "Informações do app e licença",
+                description = "Informações do app e símbolos ARASAAC",
                 onClick = onNavigateToAbout
+            )
+        }
+    }
+}
+
+@Composable
+fun SettingsSwitchItem(
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color.Transparent
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = description, style = MaterialTheme.typography.bodySmall, color = ColorTokens.OnSurfaceVariant)
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(checkedThumbColor = ColorTokens.Primary)
             )
         }
     }
@@ -90,32 +121,20 @@ fun SettingsMenuItem(
     description: String,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = SpacingTokens.Sm)
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = ColorTokens.SurfaceVariant)
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        color = Color.Transparent
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SpacingTokens.Md),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ColorTokens.OnSurfaceVariant
-                )
+                Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = description, style = MaterialTheme.typography.bodySmall, color = ColorTokens.OnSurfaceVariant)
             }
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = ColorTokens.OnSurfaceVariant
-            )
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = ColorTokens.OnSurfaceVariant)
         }
     }
 }

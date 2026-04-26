@@ -12,6 +12,10 @@ class AndroidTtsController(private val context: Context) : TtsController {
     private var speechRate = 1.5f  // Default mais alto
     private var pitch = 1.0f
 
+    private var onStartListener: ((String) -> Unit)? = null
+    private var onDoneListener: ((String) -> Unit)? = null
+    private var onErrorListener: ((String) -> Unit)? = null
+
     private val initListener = TextToSpeech.OnInitListener { status ->
         if (status == TextToSpeech.SUCCESS) {
             tts?.let { engine ->
@@ -20,6 +24,25 @@ class AndroidTtsController(private val context: Context) : TtsController {
                 
                 engine.setSpeechRate(speechRate)
                 engine.setPitch(pitch)
+                
+                engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        Log.d("TTS", "onStart: $utteranceId")
+                        utteranceId?.let { onStartListener?.invoke(it) }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        Log.d("TTS", "onDone: $utteranceId")
+                        utteranceId?.let { onDoneListener?.invoke(it) }
+                    }
+
+                    @Deprecated("Deprecated in Java")
+                    override fun onError(utteranceId: String?) {
+                        Log.e("TTS", "onError: $utteranceId")
+                        utteranceId?.let { onErrorListener?.invoke(it) }
+                    }
+                })
+                
                 isInitialized = true
                 Log.d("TTS", "TTS initialized successfully!")
             }
@@ -31,6 +54,16 @@ class AndroidTtsController(private val context: Context) : TtsController {
     init {
         Log.d("TTS", "Creating AndroidTtsController...")
         tts = TextToSpeech(context, initListener)
+    }
+
+    override fun setOnSpeechProgressListener(
+        onStart: (String) -> Unit,
+        onDone: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        this.onStartListener = onStart
+        this.onDoneListener = onDone
+        this.onErrorListener = onError
     }
 
     override fun speak(text: String) {

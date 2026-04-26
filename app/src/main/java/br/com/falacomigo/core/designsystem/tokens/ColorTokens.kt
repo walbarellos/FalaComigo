@@ -48,8 +48,14 @@ object ColorTokens {
             "basic" -> CardMint
             "emocoes" -> CardPurple
             "necessidades" -> CardYellow
-            "saude" -> CardBlue
+            "saude" -> CardPink
             "emergencia" -> CardPink
+            "sensorial" -> CardPeach
+            "social" -> CardBlue
+            "acoes" -> Color(0xFF607D8B) // Blue Gray Profissional
+            "atividades" -> Color(0xFF8D6E63) // Brown Suave
+            "lugares" -> Color(0xFF78909C) // Teal Gray
+            "rotina" -> Color(0xFF5C6BC0) // Indigo Soft
             else -> CardGray
         }
     }
@@ -58,6 +64,7 @@ object ColorTokens {
     val SymbolCardBackground = Surface
     val SymbolCardBorder = Outline
     val FocusBorder = Primary
+    val FocusHighlight = Color(0xFF10B981) // Verde esmeralda suave para elocução
     val PressedBackground = PrimaryContainer
 
     object HighContrast {

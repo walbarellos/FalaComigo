@@ -1,0 +1,2568 @@
+# LISTA SEQUENCIADA DE GERAÇÃO DE ARQUIVOS
+
+## Ciclo: Frontend P0 — Prancha Acessível para Neurodivergentes, Pais, Mães e Cuidadores
+
+**Objetivo do ciclo:** criar a primeira estrutura frontend realmente executável do app, com foco absoluto em comunicação simples, previsível, offline, acessível e impossível de confundir no uso cotidiano.
+
+**Stack soberana assumida:** Android nativo + Kotlin + Jetpack Compose.
+
+**Raiz técnica sugerida:**
+
+```text
+app/src/main/java/br/com/falacomigo/
+```
+
+**Documentos-base já firmados para consulta:**
+
+```text
+README.md
+docs/000_MAPA_FISICO_DO_PACOTE.md
+docs/00-Cascata/000_Indice.md
+docs/00-Cascata/001_Visao_Geral_Projeto.md
+docs/00-Cascata/002_Cronograma_Fases.md
+docs/00-Cascata/003_Ciclos_Metodo_Caracol.md
+docs/01-Obrigatorios/001_Escopo_e_Limites.md
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+docs/01-Obrigatorios/006_Arquitetura_e_Stack.md
+docs/01-Obrigatorios/007_ARASAAC_e_Licenca.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/01-Obrigatorios/009_Plano_de_Testes.md
+docs/02-Diagramas/001_Casos_de_Uso.md
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/02-Diagramas/004_Arquitetura_Componentes.md
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+docs/99-Auditoria/NOTA_E_MELHORIAS.md
+```
+
+---
+
+# 00 — Fundação do App
+
+## 001 — MainActivity.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/MainActivity.kt
+```
+
+**Funcionalidade:**
+Ponto de entrada do app. Deve iniciar o tema global, aplicar configurações de acessibilidade, carregar o `AppNavHost` e abrir diretamente no modo comunicação, sem login, sem cadastro e sem onboarding obrigatório bloqueante.
+
+**Prompt ideal para a Vida Relacional:**
+
+```text
+Gerar o arquivo MainActivity.kt para um app Android nativo em Kotlin com Jetpack Compose.
+
+O app se chama Fala Comigo.
+
+Regras obrigatórias:
+- abrir diretamente no modo comunicação;
+- não exigir login;
+- não exigir internet;
+- aplicar o tema FalaComigoTheme;
+- carregar AppNavHost;
+- respeitar acessibilidade desde o primeiro frame;
+- não incluir Firebase, analytics, cloud, conta ou dependência externa desnecessária;
+- código limpo, idiomático, minimalista e pronto para compilar.
+
+Consultar os documentos anexos:
+README.md
+docs/01-Obrigatorios/006_Arquitetura_e_Stack.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+README.md
+006_Arquitetura_e_Stack.md
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+```
+
+---
+
+## 002 — FalaComigoApp.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/FalaComigoApp.kt
+```
+
+**Funcionalidade:**
+Componente raiz do app. Centraliza tema, navegação, estado global mínimo e futura injeção de dependências.
+
+**Prompt ideal:**
+
+```text
+Gerar o arquivo FalaComigoApp.kt.
+
+Criar um composable raiz chamado FalaComigoApp().
+
+Ele deve:
+- aplicar FalaComigoTheme;
+- chamar AppNavHost;
+- manter arquitetura simples;
+- não carregar dados remotos;
+- não bloquear a tela inicial;
+- estar preparado para receber dependências futuras, mas sem inflar o MVP.
+
+O app é uma prancha de comunicação digital offline-first para pessoas neurodivergentes e seus cuidadores.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+000_CONTRATO_FRONTEND.md
+001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+003_Requisitos_Funcionais.md
+004_Requisitos_Nao_Funcionais.md
+```
+
+---
+
+# 01 — Navegação
+
+## 003 — AppRoutes.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/navigation/AppRoutes.kt
+```
+
+**Funcionalidade:**
+Define rotas soberanas do app: comunicação, seleção de prancha, editor protegido, configurações, acessibilidade, voz, sobre/licenças e diagnóstico offline.
+
+**Prompt ideal:**
+
+```text
+Gerar o arquivo AppRoutes.kt.
+
+Criar uma estrutura de rotas tipadas ou constantes imutáveis para navegação Jetpack Compose.
+
+Rotas mínimas:
+- Communication
+- BoardSelector
+- EmergencyBoard
+- EditorGate
+- BoardEditor
+- SymbolPicker
+- Settings
+- AccessibilitySettings
+- VoiceSettings
+- AboutLicense
+- OfflineReadiness
+- TtsHealth
+
+Regras:
+- modo comunicação deve ser rota inicial;
+- editor deve ficar separado do modo comunicação;
+- telas técnicas não podem aparecer por acidente para a criança/comunicador;
+- nomes claros, simples e fáceis de manter.
+
+Consultar:
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/04-Frontend_Neurodivergente/001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Fluxo_Principal.md
+001_ESTRUTURA_FRONTEND_ANDROID_COMPOSE.md
+005_Regras_de_Negocio.md
+```
+
+---
+
+## 004 — AppNavHost.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/navigation/AppNavHost.kt
+```
+
+**Funcionalidade:**
+Controla o fluxo principal do app. A rota inicial deve ser `CommunicationScreen`. O editor deve ser acessado com proteção simples por `PinGateScreen`.
+
+**Prompt ideal:**
+
+```text
+Gerar o arquivo AppNavHost.kt usando Jetpack Compose Navigation.
+
+Regras:
+- rota inicial obrigatória: CommunicationScreen;
+- navegação simples e previsível;
+- botão voltar nunca deve prender o usuário em tela técnica;
+- editor deve passar por PinGateScreen;
+- EmergencyBoard deve ser acessível rapidamente;
+- Settings deve ser secundário, não competir com comunicação;
+- código preparado para testes.
+
+Consultar:
+docs/02-Diagramas/001_Casos_de_Uso.md
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+001_Casos_de_Uso.md
+003_Fluxo_Principal.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+# 02 — Design System Acessível
+
+## 005 — ColorTokens.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/tokens/ColorTokens.kt
+```
+
+**Funcionalidade:**
+Define cores calmas, alto contraste, estados de foco, estados de toque e variações visuais sem excesso sensorial.
+
+**Prompt ideal:**
+
+```text
+Gerar ColorTokens.kt para o design system do app Fala Comigo.
+
+Criar tokens de cores para:
+- tema claro calmo;
+- tema alto contraste;
+- fundo principal;
+- cartão de símbolo;
+- borda de foco;
+- estado pressionado;
+- erro;
+- alerta;
+- sucesso;
+- texto primário;
+- texto secundário.
+
+Regras:
+- evitar paleta agressiva;
+- priorizar legibilidade;
+- não depender apenas de cor para comunicar estado;
+- preparar compatibilidade com neurodivergência, baixa visão e uso por cuidadores.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 006 — TypeTokens.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/tokens/TypeTokens.kt
+```
+
+**Funcionalidade:**
+Define tamanhos de texto legíveis para símbolos, botões, títulos e ajuda. Deve evitar textos pequenos.
+
+**Prompt ideal:**
+
+```text
+Gerar TypeTokens.kt.
+
+Criar tokens tipográficos para:
+- label de símbolo;
+- botão principal;
+- título de tela;
+- subtítulo;
+- texto de ajuda;
+- texto de configuração;
+- texto de erro.
+
+Regras:
+- priorizar legibilidade;
+- labels de símbolos devem ser grandes;
+- evitar variações excessivas;
+- manter hierarquia visual simples;
+- código compatível com Jetpack Compose Material 3.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 007 — SizeTokens.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/tokens/SizeTokens.kt
+```
+
+**Funcionalidade:**
+Define tamanhos mínimos para toque, cartões, ícones, espaçamentos e áreas de foco.
+
+**Prompt ideal:**
+
+```text
+Gerar SizeTokens.kt.
+
+Criar tokens de tamanho para:
+- touch target mínimo;
+- cartão de símbolo pequeno, médio e grande;
+- altura de botão;
+- tamanho de ícone;
+- raio de borda;
+- borda de foco;
+- espaçamento entre cartões.
+
+Regras:
+- nenhum alvo interativo crítico abaixo de 64dp;
+- SymbolCard ideal com pelo menos 72dp;
+- priorizar usuários com dificuldade motora;
+- preparar UI para Switch Access e TalkBack.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 008 — SpacingTokens.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/tokens/SpacingTokens.kt
+```
+
+**Funcionalidade:**
+Define espaçamentos previsíveis, reduzindo poluição visual e risco de toque acidental.
+
+**Prompt ideal:**
+
+```text
+Gerar SpacingTokens.kt.
+
+Criar tokens de espaçamento:
+- xs
+- sm
+- md
+- lg
+- xl
+- screenPadding
+- gridGap
+- cardContentPadding
+
+Regras:
+- evitar tela apertada;
+- reduzir toque acidental;
+- manter previsibilidade visual;
+- facilitar leitura por cuidadores e uso por crianças.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 009 — FalaComigoTheme.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/theme/FalaComigoTheme.kt
+```
+
+**Funcionalidade:**
+Tema central do app. Aplica cores, tipografia, formatos e suporte futuro a alto contraste.
+
+**Prompt ideal:**
+
+```text
+Gerar FalaComigoTheme.kt usando Jetpack Compose Material 3.
+
+O tema deve:
+- aplicar tokens de cor e tipografia;
+- ter modo claro calmo como padrão;
+- suportar alto contraste;
+- evitar animações agressivas;
+- preparar base para configuração futura de tema;
+- ser simples, limpo e pronto para produção.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+# 03 — Modelos de UI do Frontend
+
+## 010 — SymbolUiModel.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/model/SymbolUiModel.kt
+```
+
+**Funcionalidade:**
+Modelo visual do símbolo usado pelo frontend. Deve conter label, texto falado, imagem local/remota futura, categoria e flags de emergência.
+
+**Prompt ideal:**
+
+```text
+Gerar SymbolUiModel.kt.
+
+Criar data class para representar um símbolo de comunicação no frontend.
+
+Campos mínimos:
+- id
+- label
+- spokenText
+- imagePath
+- imageUrl opcional
+- category
+- isEmergency
+- isCustom
+- accessibilityLabel
+
+Regras:
+- modelo independente de banco de dados;
+- não acoplar com Room;
+- servir para preview, seed local e UI real;
+- todos os campos críticos devem favorecer acessibilidade.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+005_Regras_de_Negocio.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 011 — BoardUiModel.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/model/BoardUiModel.kt
+```
+
+**Funcionalidade:**
+Modelo visual de uma prancha: título, símbolos, quantidade de colunas, tipo e prioridade.
+
+**Prompt ideal:**
+
+```text
+Gerar BoardUiModel.kt.
+
+Criar data class para prancha de comunicação.
+
+Campos:
+- id
+- title
+- description
+- symbols
+- columns
+- isEmergency
+- isDefault
+- order
+
+Regras:
+- uma prancha pode ser de emergência;
+- prancha padrão deve abrir sem configuração;
+- modelo deve permitir grid simples;
+- não acoplar com persistência ainda.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+003_Fluxo_Principal.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 012 — RoutineUiModel.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/model/RoutineUiModel.kt
+```
+
+**Funcionalidade:**
+Representa rotinas do cotidiano: comida, banheiro, escola, sono, dor, emoções, urgente.
+
+**Prompt ideal:**
+
+```text
+Gerar RoutineUiModel.kt.
+
+Criar modelo de rotina para organizar pranchas por contexto.
+
+Campos:
+- id
+- title
+- subtitle
+- iconName
+- boardId
+- isEmergency
+- order
+
+Regras:
+- incluir suporte a rotina Urgente;
+- rotina não é tela técnica;
+- deve servir para cuidadores e comunicadores;
+- nomes simples e humanos.
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+003_Requisitos_Funcionais.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+# 04 — Dados Seed do Frontend
+
+## 013 — SeedSymbols.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/seed/SeedSymbols.kt
+```
+
+**Funcionalidade:**
+Cria símbolos mínimos para o app funcionar no primeiro minuto: sim, não, água, fome, banheiro, dor, ajuda, parar, feliz, triste.
+
+**Prompt ideal:**
+
+```text
+Gerar SeedSymbols.kt.
+
+Criar uma lista local de símbolos iniciais para o app Fala Comigo.
+
+Símbolos obrigatórios:
+- Sim
+- Não
+- Água
+- Fome
+- Banheiro
+- Dor
+- Ajuda
+- Quero parar
+- Feliz
+- Triste
+- Medo
+- Sono
+
+Regras:
+- spokenText em português do Brasil;
+- accessibilityLabel claro;
+- imagePath pode usar placeholder local temporário;
+- não depender de internet;
+- não usar assets ARASAAC ainda se os arquivos não estiverem presentes;
+- preparar futura substituição por ARASAAC.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/007_ARASAAC_e_Licenca.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+007_ARASAAC_e_Licenca.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 014 — SeedBoards.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/seed/SeedBoards.kt
+```
+
+**Funcionalidade:**
+Cria pranchas iniciais: principal, urgente, necessidades, emoções.
+
+**Prompt ideal:**
+
+```text
+Gerar SeedBoards.kt.
+
+Criar pranchas iniciais usando SeedSymbols.
+
+Pranchas obrigatórias:
+- Principal
+- Urgente
+- Necessidades
+- Emoções
+
+Regras:
+- Principal deve ser a prancha inicial;
+- Urgente deve conter símbolos de ajuda, dor, banheiro, água, medo, não, sim e quero parar;
+- grid simples;
+- sem dependência de banco;
+- pronto para conectar em ViewModel.
+
+Consultar:
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Fluxo_Principal.md
+003_BACKLOG_FRONTEND.md
+005_Regras_de_Negocio.md
+```
+
+---
+
+## 015 — SeedRoutines.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/seed/SeedRoutines.kt
+```
+
+**Funcionalidade:**
+Cria rotinas iniciais para navegação humana: Principal, Urgente, Necessidades, Emoções.
+
+**Prompt ideal:**
+
+```text
+Gerar SeedRoutines.kt.
+
+Criar rotinas iniciais para o app.
+
+Rotinas:
+- Principal
+- Urgente
+- Necessidades
+- Emoções
+
+Regras:
+- nomes simples;
+- descrições curtas;
+- Urgente deve ter prioridade visual;
+- sem excesso de categorias;
+- pronto para uso offline no primeiro minuto.
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+# 05 — Componentes Essenciais
+
+## 016 — SymbolCard.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/SymbolCard.kt
+```
+
+**Funcionalidade:**
+Componente mais importante do app. Representa um símbolo tocável que fala. Deve ser grande, claro, previsível e acessível.
+
+**Prompt ideal:**
+
+```text
+Gerar SymbolCard.kt em Jetpack Compose.
+
+O componente deve receber:
+- SymbolUiModel;
+- onClick;
+- modifier;
+- enabled;
+- selected opcional.
+
+Regras obrigatórias:
+- alvo mínimo de toque de 72dp;
+- imagem ou placeholder visual;
+- label grande;
+- contentDescription/accessibilityLabel;
+- estado pressionado discreto;
+- foco visível;
+- compatível com TalkBack;
+- compatível com Switch Access;
+- não usar animações invasivas;
+- não depender de internet;
+- visual calmo e previsível.
+
+Este é o componente central do app. Código deve ser limpo, reutilizável e pronto para produção.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_COMPONENTES_PRIORITARIOS.md
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 017 — BoardGrid.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/BoardGrid.kt
+```
+
+**Funcionalidade:**
+Grid de símbolos da prancha. Deve evitar confusão, manter espaçamento adequado e funcionar em celulares pequenos.
+
+**Prompt ideal:**
+
+```text
+Gerar BoardGrid.kt em Jetpack Compose.
+
+Criar componente que recebe:
+- lista de SymbolUiModel;
+- número de colunas;
+- onSymbolClick.
+
+Regras:
+- usar LazyVerticalGrid ou alternativa estável;
+- espaçamento generoso;
+- respeitar touch target;
+- funcionar em celulares pequenos;
+- não criar scroll confuso;
+- evitar excesso visual;
+- usar SymbolCard;
+- estado vazio amigável.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/02-Diagramas/004_Arquitetura_Componentes.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_COMPONENTES_PRIORITARIOS.md
+004_Arquitetura_Componentes.md
+008_Design_System_Acessibilidade.md
+```
+
+---
+
+## 018 — RoutineCard.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/RoutineCard.kt
+```
+
+**Funcionalidade:**
+Card para escolher rotina/prancha: Principal, Urgente, Necessidades, Emoções.
+
+**Prompt ideal:**
+
+```text
+Gerar RoutineCard.kt em Jetpack Compose.
+
+O componente deve:
+- exibir título;
+- exibir subtítulo;
+- destacar rotina Urgente sem agressividade visual;
+- ter alvo de toque grande;
+- ter contentDescription claro;
+- ser reutilizável no seletor de pranchas.
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 019 — PhraseBar.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/PhraseBar.kt
+```
+
+**Funcionalidade:**
+Barra opcional de frase acumulada. Permite montar sequência simples de símbolos antes de falar.
+
+**Prompt ideal:**
+
+```text
+Gerar PhraseBar.kt.
+
+Criar componente Compose para exibir uma frase formada por símbolos selecionados.
+
+Funcionalidades:
+- exibir texto acumulado;
+- botão Falar;
+- botão Limpar;
+- estado vazio discreto.
+
+Regras:
+- não deve ocupar espaço demais;
+- deve ser opcional;
+- não pode atrapalhar o toque nos símbolos;
+- botões grandes;
+- labels acessíveis.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 020 — EmergencyButton.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/EmergencyButton.kt
+```
+
+**Funcionalidade:**
+Botão discreto, mas sempre acessível, para abrir a prancha urgente.
+
+**Prompt ideal:**
+
+```text
+Gerar EmergencyButton.kt.
+
+Criar botão Compose para acesso rápido à prancha Urgente.
+
+Regras:
+- visível sem poluir a interface;
+- toque grande;
+- label simples: "Urgente";
+- contentDescription: "Abrir comunicação urgente";
+- não usar vermelho agressivo como única comunicação;
+- não disparar som automaticamente;
+- apenas navegar.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+000_CONTRATO_FRONTEND.md
+003_BACKLOG_FRONTEND.md
+008_Design_System_Acessibilidade.md
+```
+
+---
+
+## 021 — EmptyState.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/EmptyState.kt
+```
+
+**Funcionalidade:**
+Estado vazio humano, simples e sem linguagem técnica.
+
+**Prompt ideal:**
+
+```text
+Gerar EmptyState.kt.
+
+Criar componente Compose para estados vazios.
+
+Regras:
+- linguagem humana;
+- sem termos técnicos;
+- texto curto;
+- botão de ação opcional;
+- acessível;
+- visual calmo.
+
+Exemplos:
+"Esta prancha ainda não tem símbolos."
+"Você pode adicionar símbolos no modo edição."
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 022 — ConfirmActionSheet.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/ConfirmActionSheet.kt
+```
+
+**Funcionalidade:**
+Confirma ações perigosas como excluir símbolo, limpar frase ou sair do editor.
+
+**Prompt ideal:**
+
+```text
+Gerar ConfirmActionSheet.kt.
+
+Criar componente Compose para confirmação de ação.
+
+Regras:
+- linguagem simples;
+- botão cancelar sempre visível;
+- ação destrutiva nunca deve ser padrão;
+- compatível com TalkBack;
+- não usar diálogo confuso;
+- evitar textos longos.
+
+Consultar:
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Regras_de_Negocio.md
+008_Design_System_Acessibilidade.md
+```
+
+---
+
+## 023 — ArasaacAttribution.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/components/ArasaacAttribution.kt
+```
+
+**Funcionalidade:**
+Componente de crédito ARASAAC para tela “Sobre”, busca de símbolos e documentação visual.
+
+**Prompt ideal:**
+
+```text
+Gerar ArasaacAttribution.kt.
+
+Criar componente Compose com texto de atribuição para ARASAAC.
+
+Regras:
+- informar que pictogramas ARASAAC são propriedade do Governo de Aragão;
+- mencionar autor Sergio Palao quando aplicável;
+- indicar licença Creative Commons BY-NC-SA;
+- linguagem curta;
+- visual discreto;
+- não misturar licença dos símbolos com licença do código.
+
+Consultar obrigatoriamente:
+docs/01-Obrigatorios/007_ARASAAC_e_Licenca.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+007_ARASAAC_e_Licenca.md
+```
+
+---
+
+# 06 — Acessibilidade Estrutural
+
+## 024 — TalkBackLabels.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/accessibility/TalkBackLabels.kt
+```
+
+**Funcionalidade:**
+Centraliza textos acessíveis usados por TalkBack.
+
+**Prompt ideal:**
+
+```text
+Gerar TalkBackLabels.kt.
+
+Criar funções utilitárias para labels de acessibilidade.
+
+Exemplos:
+- label para símbolo;
+- label para botão urgente;
+- label para falar frase;
+- label para limpar frase;
+- label para editar prancha.
+
+Regras:
+- português claro;
+- evitar termos técnicos;
+- indicar ação e resultado;
+- manter consistência em todo o app.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 025 — AccessibleActions.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/accessibility/AccessibleActions.kt
+```
+
+**Funcionalidade:**
+Define ações acessíveis alternativas para interações complexas, especialmente no editor.
+
+**Prompt ideal:**
+
+```text
+Gerar AccessibleActions.kt.
+
+Criar utilitários ou extensões para ações acessíveis em componentes Compose.
+
+Regras:
+- toda ação de arrastar deve ter alternativa por botão;
+- toda ação de swipe deve ter alternativa por botão;
+- toda ação crítica deve ter label clara;
+- preparar suporte para Switch Access;
+- código simples e documentado.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 026 — MotionSettings.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/accessibility/MotionSettings.kt
+```
+
+**Funcionalidade:**
+Controla redução de movimento/animação. O app deve funcionar bem sem animações.
+
+**Prompt ideal:**
+
+```text
+Gerar MotionSettings.kt.
+
+Criar estrutura simples para configurar redução de movimento.
+
+Regras:
+- animações devem ser mínimas por padrão;
+- permitir desativar transições;
+- nunca depender de animação para compreensão;
+- app deve continuar compreensível sem movimento.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+# 07 — Tela Principal de Comunicação
+
+## 027 — CommunicationUiState.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/CommunicationUiState.kt
+```
+
+**Funcionalidade:**
+Estado da tela principal: prancha atual, frase acumulada, fala em andamento, erro de TTS, modo frase ligado/desligado.
+
+**Prompt ideal:**
+
+```text
+Gerar CommunicationUiState.kt.
+
+Criar data class de estado para a tela principal de comunicação.
+
+Campos:
+- currentBoard
+- availableRoutines
+- phraseSymbols
+- isSpeaking
+- ttsErrorMessage
+- phraseModeEnabled
+- isLoading
+
+Regras:
+- estado imutável;
+- pronto para ViewModel;
+- não acoplar com banco;
+- representar claramente falhas de TTS sem travar o app.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+005_Diagrama_Sequencia_TTS.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 028 — CommunicationViewModel.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/CommunicationViewModel.kt
+```
+
+**Funcionalidade:**
+Controla interação principal: tocar símbolo, falar, limpar frase, trocar prancha, abrir urgente.
+
+**Prompt ideal:**
+
+```text
+Gerar CommunicationViewModel.kt.
+
+Criar ViewModel para a tela principal de comunicação.
+
+Funcionalidades:
+- carregar SeedBoards;
+- definir prancha inicial;
+- selecionar símbolo;
+- falar símbolo individual;
+- adicionar símbolo à frase se modo frase estiver ativo;
+- falar frase;
+- limpar frase;
+- trocar prancha;
+- abrir prancha urgente;
+- tratar erro de TTS de forma fail-open.
+
+Regras:
+- comunicação nunca pode travar por erro de voz;
+- app deve continuar visualmente funcional se TTS falhar;
+- não depender de internet;
+- não depender de banco neste ciclo;
+- código preparado para receber TtsController futuramente.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+004_Requisitos_Nao_Funcionais.md
+005_Diagrama_Sequencia_TTS.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 029 — CommunicationScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/CommunicationScreen.kt
+```
+
+**Funcionalidade:**
+Tela principal do app. Deve abrir diretamente com prancha de comunicação, sem exigir configuração.
+
+**Prompt ideal:**
+
+```text
+Gerar CommunicationScreen.kt em Jetpack Compose.
+
+A tela deve:
+- exibir título simples da prancha atual;
+- exibir BoardGrid;
+- exibir botão Urgente;
+- exibir acesso secundário para rotinas;
+- exibir acesso discreto para configurações;
+- exibir PhraseBar se modo frase estiver ativo;
+- tocar símbolo e falar;
+- ser calma, previsível e acessível.
+
+Regras absolutas:
+- sem login;
+- sem cadastro;
+- sem internet;
+- sem tutorial bloqueante;
+- sem excesso de botões;
+- o usuário deve conseguir tocar e ser ouvido em menos de 5 segundos;
+- nenhuma tela técnica deve aparecer primeiro.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+000_CONTRATO_FRONTEND.md
+002_COMPONENTES_PRIORITARIOS.md
+003_Fluxo_Principal.md
+002_Personas_e_Contexto.md
+```
+
+---
+
+## 030 — EmergencyBoardScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/EmergencyBoardScreen.kt
+```
+
+**Funcionalidade:**
+Prancha urgente com símbolos essenciais de necessidade, dor, ajuda e interrupção.
+
+**Prompt ideal:**
+
+```text
+Gerar EmergencyBoardScreen.kt.
+
+Criar tela Compose para comunicação urgente.
+
+Símbolos prioritários:
+- Ajuda
+- Dor
+- Banheiro
+- Água
+- Fome
+- Medo
+- Não
+- Sim
+- Quero parar
+
+Regras:
+- não usar visual alarmista;
+- tela deve ser extremamente simples;
+- botão voltar para prancha principal;
+- cada símbolo deve falar ao toque;
+- labels acessíveis;
+- grid grande;
+- sem dependência de internet.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_BACKLOG_FRONTEND.md
+002_Personas_e_Contexto.md
+003_Requisitos_Funcionais.md
+```
+
+---
+
+## 031 — BoardSelectorScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/BoardSelectorScreen.kt
+```
+
+**Funcionalidade:**
+Permite trocar entre rotinas/pranchas sem depender de swipe.
+
+**Prompt ideal:**
+
+```text
+Gerar BoardSelectorScreen.kt.
+
+Criar tela para selecionar pranchas/rotinas.
+
+Regras:
+- usar RoutineCard;
+- não depender de swipe;
+- botões grandes;
+- nomes simples;
+- tela curta;
+- incluir Principal, Urgente, Necessidades e Emoções;
+- botão voltar para comunicação;
+- acessível para TalkBack.
+
+Consultar:
+docs/02-Diagramas/003_Fluxo_Principal.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Fluxo_Principal.md
+002_COMPONENTES_PRIORITARIOS.md
+008_Design_System_Acessibilidade.md
+```
+
+---
+
+# 08 — Voz / TTS
+
+## 032 — TtsController.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/tts/TtsController.kt
+```
+
+**Funcionalidade:**
+Interface de fala. Deve permitir falar texto, parar fala e liberar recursos.
+
+**Prompt ideal:**
+
+```text
+Gerar TtsController.kt.
+
+Criar interface para controle de TTS.
+
+Métodos:
+- speak(text: String)
+- stop()
+- shutdown()
+- isAvailable()
+
+Regras:
+- não acoplar diretamente a AndroidTextToSpeech na UI;
+- permitir implementação fake para testes;
+- preparar tratamento fail-open;
+- se TTS falhar, app continua visualmente utilizável.
+
+Consultar:
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Diagrama_Sequencia_TTS.md
+004_Requisitos_Nao_Funcionais.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 033 — AndroidTtsController.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/tts/AndroidTtsController.kt
+```
+
+**Funcionalidade:**
+Implementação real usando TextToSpeech do Android.
+
+**Prompt ideal:**
+
+```text
+Gerar AndroidTtsController.kt.
+
+Implementar TtsController usando android.speech.tts.TextToSpeech.
+
+Regras:
+- idioma padrão pt-BR;
+- inicialização segura;
+- tratar ausência de mecanismo TTS;
+- não quebrar o app se TTS indisponível;
+- método speak deve ignorar texto vazio;
+- liberar recursos com shutdown;
+- código simples, seguro e pronto para uso.
+
+Consultar:
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Diagrama_Sequencia_TTS.md
+004_Requisitos_Nao_Funcionais.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 034 — FakeTtsController.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/tts/FakeTtsController.kt
+```
+
+**Funcionalidade:**
+Implementação fake para previews, testes e desenvolvimento sem depender do mecanismo TTS real.
+
+**Prompt ideal:**
+
+```text
+Gerar FakeTtsController.kt.
+
+Criar implementação fake de TtsController para testes e previews.
+
+Regras:
+- armazenar último texto falado;
+- não chamar APIs Android reais;
+- permitir testes de ViewModel;
+- comportamento previsível;
+- código mínimo.
+
+Consultar:
+docs/01-Obrigatorios/009_Plano_de_Testes.md
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+009_Plano_de_Testes.md
+005_Diagrama_Sequencia_TTS.md
+```
+
+---
+
+# 09 — Editor Protegido para Cuidadores
+
+## 035 — PinGateScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/editor/PinGateScreen.kt
+```
+
+**Funcionalidade:**
+Barreira simples para impedir que a criança entre no editor acidentalmente.
+
+**Prompt ideal:**
+
+```text
+Gerar PinGateScreen.kt.
+
+Criar tela Compose de proteção simples para entrar no modo edição.
+
+Regras:
+- linguagem humana;
+- explicar: "Área para adulto/cuidador";
+- PIN simples no MVP pode ser mockado;
+- botão cancelar deve voltar para comunicação;
+- não parecer tela de banco;
+- não assustar o usuário;
+- acessível por TalkBack;
+- não bloquear o uso da comunicação.
+
+Consultar:
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Regras_de_Negocio.md
+002_Personas_e_Contexto.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 036 — BoardEditorScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/editor/BoardEditorScreen.kt
+```
+
+**Funcionalidade:**
+Tela para cuidador editar prancha de forma simples.
+
+**Prompt ideal:**
+
+```text
+Gerar BoardEditorScreen.kt.
+
+Criar tela Compose para edição de prancha.
+
+Funcionalidades:
+- listar símbolos da prancha;
+- adicionar símbolo;
+- editar símbolo;
+- remover símbolo com confirmação;
+- mover símbolo por botões, não apenas arrastar;
+- botão "Voltar para comunicação" sempre visível.
+
+Regras:
+- editor não é para criança/comunicador;
+- evitar drag-and-drop como única opção;
+- linguagem simples;
+- sem termos técnicos;
+- nenhuma alteração destrutiva sem confirmação;
+- código preparado para persistência futura.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+005_Regras_de_Negocio.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 037 — SymbolPickerScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/editor/SymbolPickerScreen.kt
+```
+
+**Funcionalidade:**
+Tela para escolher símbolo existente ou futuramente buscar no ARASAAC.
+
+**Prompt ideal:**
+
+```text
+Gerar SymbolPickerScreen.kt.
+
+Criar tela Compose para seleção de símbolos.
+
+Regras:
+- usar SeedSymbols neste ciclo;
+- permitir busca local simples por texto;
+- exibir símbolos em grid;
+- cada símbolo deve ser claro e acessível;
+- incluir ArasaacAttribution em área discreta, se houver referência a ARASAAC;
+- não baixar nada da internet neste ciclo;
+- preparar futura integração ARASAAC.
+
+Consultar:
+docs/01-Obrigatorios/007_ARASAAC_e_Licenca.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+007_ARASAAC_e_Licenca.md
+002_COMPONENTES_PRIORITARIOS.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 038 — SlotEditorScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/editor/SlotEditorScreen.kt
+```
+
+**Funcionalidade:**
+Tela para editar label, texto falado e imagem de um símbolo.
+
+**Prompt ideal:**
+
+```text
+Gerar SlotEditorScreen.kt.
+
+Criar tela Compose para editar um símbolo da prancha.
+
+Campos:
+- nome visível;
+- texto falado;
+- imagem/placeholder;
+- categoria opcional.
+
+Regras:
+- campos com labels claros;
+- botão salvar;
+- botão cancelar;
+- validação simples;
+- não permitir salvar símbolo sem texto;
+- texto falado pode ser diferente do label;
+- linguagem para cuidador leigo;
+- acessível por TalkBack.
+
+Consultar:
+docs/01-Obrigatorios/003_Requisitos_Funcionais.md
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+003_Requisitos_Funcionais.md
+002_Personas_e_Contexto.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 039 — MoveSymbolScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/editor/MoveSymbolScreen.kt
+```
+
+**Funcionalidade:**
+Alternativa acessível ao drag-and-drop para reordenar símbolos.
+
+**Prompt ideal:**
+
+```text
+Gerar MoveSymbolScreen.kt.
+
+Criar tela Compose para mover símbolos sem drag-and-drop.
+
+Funcionalidades:
+- mover para cima;
+- mover para baixo;
+- mover para começo;
+- mover para fim;
+- salvar ordem;
+- cancelar.
+
+Regras:
+- não depender de gesto fino;
+- ideal para cuidadores idosos ou usuários com dificuldade motora;
+- compatível com Switch Access;
+- feedback visual claro;
+- linguagem simples.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+# 10 — Configurações
+
+## 040 — SettingsScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/settings/SettingsScreen.kt
+```
+
+**Funcionalidade:**
+Tela simples de configurações: acessibilidade, voz, sobre/licença, diagnóstico offline.
+
+**Prompt ideal:**
+
+```text
+Gerar SettingsScreen.kt.
+
+Criar tela Compose de configurações.
+
+Itens:
+- Acessibilidade
+- Voz
+- Sobre e licenças
+- Diagnóstico offline
+- Voltar para comunicação
+
+Regras:
+- configurações não devem competir com comunicação;
+- linguagem simples;
+- ícones opcionais;
+- botões grandes;
+- voltar para comunicação sempre claro.
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 041 — AccessibilitySettingsScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/settings/AccessibilitySettingsScreen.kt
+```
+
+**Funcionalidade:**
+Permite configurar tamanho dos símbolos, alto contraste e redução de movimento.
+
+**Prompt ideal:**
+
+```text
+Gerar AccessibilitySettingsScreen.kt.
+
+Criar tela Compose de configurações de acessibilidade.
+
+Opções:
+- tamanho dos símbolos: médio/grande/muito grande;
+- alto contraste;
+- reduzir movimento;
+- modo frase ligado/desligado.
+
+Regras:
+- cada opção deve ter explicação curta;
+- controles grandes;
+- compatível com TalkBack;
+- alterações devem ser compreensíveis;
+- não usar linguagem técnica.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+## 042 — VoiceSettingsScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/settings/VoiceSettingsScreen.kt
+```
+
+**Funcionalidade:**
+Configura fala/TTS: testar voz, velocidade simples, status de disponibilidade.
+
+**Prompt ideal:**
+
+```text
+Gerar VoiceSettingsScreen.kt.
+
+Criar tela Compose para configurações de voz.
+
+Funcionalidades:
+- botão "Testar voz";
+- status: voz disponível ou indisponível;
+- seletor simples de velocidade: lenta, normal, rápida;
+- mensagem amigável se TTS falhar.
+
+Regras:
+- não travar app se TTS indisponível;
+- linguagem simples para cuidadores;
+- sem termos técnicos como engine/provider;
+- botão voltar para comunicação.
+
+Consultar:
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Diagrama_Sequencia_TTS.md
+004_Requisitos_Nao_Funcionais.md
+```
+
+---
+
+## 043 — AboutLicenseScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/settings/AboutLicenseScreen.kt
+```
+
+**Funcionalidade:**
+Tela sobre o app, créditos e licenças, com destaque correto para ARASAAC.
+
+**Prompt ideal:**
+
+```text
+Gerar AboutLicenseScreen.kt.
+
+Criar tela Compose "Sobre e licenças".
+
+Deve incluir:
+- nome do app;
+- descrição curta;
+- compromisso offline e acessível;
+- créditos ARASAAC;
+- licença dos pictogramas;
+- aviso de que o app não substitui profissional de saúde, educação ou fonoaudiologia;
+- botão voltar.
+
+Regras:
+- linguagem institucional, simples e correta;
+- não prometer tratamento;
+- não prometer diagnóstico;
+- separar licença do app e licença dos pictogramas;
+- usar componente ArasaacAttribution.
+
+Consultar:
+docs/01-Obrigatorios/001_Escopo_e_Limites.md
+docs/01-Obrigatorios/007_ARASAAC_e_Licenca.md
+docs/01-Obrigatorios/005_Regras_de_Negocio.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+001_Escopo_e_Limites.md
+007_ARASAAC_e_Licenca.md
+005_Regras_de_Negocio.md
+```
+
+---
+
+# 11 — Diagnóstico Local
+
+## 044 — OfflineReadinessScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/diagnostics/OfflineReadinessScreen.kt
+```
+
+**Funcionalidade:**
+Tela para cuidador saber se o app está pronto para uso sem internet.
+
+**Prompt ideal:**
+
+```text
+Gerar OfflineReadinessScreen.kt.
+
+Criar tela Compose de diagnóstico offline.
+
+Itens:
+- pranchas disponíveis;
+- símbolos locais disponíveis;
+- TTS disponível;
+- armazenamento local disponível;
+- aviso se algo estiver pendente.
+
+Regras:
+- linguagem simples;
+- sem jargão técnico;
+- não assustar;
+- se algo falhar, orientar o que fazer;
+- não depender de internet.
+
+Consultar:
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/04-Frontend_Neurodivergente/003_BACKLOG_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+004_Requisitos_Nao_Funcionais.md
+003_BACKLOG_FRONTEND.md
+```
+
+---
+
+## 045 — TtsHealthScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/diagnostics/TtsHealthScreen.kt
+```
+
+**Funcionalidade:**
+Diagnóstico específico da voz.
+
+**Prompt ideal:**
+
+```text
+Gerar TtsHealthScreen.kt.
+
+Criar tela Compose para verificar funcionamento do TTS.
+
+Funcionalidades:
+- mostrar se voz está disponível;
+- botão testar frase: "Olá, eu quero falar";
+- mensagem amigável se indisponível;
+- botão voltar.
+
+Regras:
+- não usar linguagem técnica;
+- não travar app;
+- manter comunicação visual disponível;
+- ideal para cuidadores resolverem problema de áudio.
+
+Consultar:
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+005_Diagrama_Sequencia_TTS.md
+004_Requisitos_Nao_Funcionais.md
+```
+
+---
+
+# 12 — Onboarding Não Bloqueante
+
+## 046 — CaregiverIntroScreen.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/onboarding/CaregiverIntroScreen.kt
+```
+
+**Funcionalidade:**
+Introdução simples para pais/mães/cuidadores, sem bloquear o uso da comunicação.
+
+**Prompt ideal:**
+
+```text
+Gerar CaregiverIntroScreen.kt.
+
+Criar tela opcional de introdução para cuidadores.
+
+Mensagens:
+- "Toque em um símbolo para falar."
+- "Use Urgente para necessidades importantes."
+- "A edição fica protegida para evitar mudanças sem querer."
+- "O app funciona sem internet."
+
+Regras:
+- não ser obrigatório;
+- botão "Começar agora";
+- botão "Pular";
+- linguagem humana;
+- sem animações obrigatórias;
+- não bloquear comunicação.
+
+Consultar:
+docs/01-Obrigatorios/002_Personas_e_Contexto.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_Personas_e_Contexto.md
+000_CONTRATO_FRONTEND.md
+```
+
+---
+
+# 13 — Previews e Testes de UI
+
+## 047 — SymbolCardPreview.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/core/designsystem/previews/SymbolCardPreview.kt
+```
+
+**Funcionalidade:**
+Preview visual do componente central em estados normal, foco, urgente e alto contraste.
+
+**Prompt ideal:**
+
+```text
+Gerar SymbolCardPreview.kt.
+
+Criar previews Compose para SymbolCard.
+
+Estados:
+- normal;
+- urgente;
+- desabilitado;
+- alto contraste;
+- texto longo;
+- sem imagem.
+
+Regras:
+- preview deve ajudar auditoria visual;
+- usar dados fake locais;
+- não depender de internet;
+- não depender de TTS.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+002_COMPONENTES_PRIORITARIOS.md
+008_Design_System_Acessibilidade.md
+```
+
+---
+
+## 048 — CommunicationScreenPreview.kt
+
+**Endereço:**
+
+```text
+app/src/main/java/br/com/falacomigo/feature/communication/CommunicationScreenPreview.kt
+```
+
+**Funcionalidade:**
+Preview da tela principal para auditoria de clareza, densidade visual e acessibilidade.
+
+**Prompt ideal:**
+
+```text
+Gerar CommunicationScreenPreview.kt.
+
+Criar previews Compose da tela principal de comunicação.
+
+Cenários:
+- prancha principal;
+- prancha urgente;
+- modo frase ligado;
+- celular pequeno;
+- alto contraste.
+
+Regras:
+- usar seed local;
+- não chamar TTS real;
+- não depender de Navigation real;
+- facilitar auditoria visual.
+
+Consultar:
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/04-Frontend_Neurodivergente/002_COMPONENTES_PRIORITARIOS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+000_CONTRATO_FRONTEND.md
+002_COMPONENTES_PRIORITARIOS.md
+```
+
+---
+
+## 049 — CommunicationViewModelTest.kt
+
+**Endereço:**
+
+```text
+app/src/test/java/br/com/falacomigo/feature/communication/CommunicationViewModelTest.kt
+```
+
+**Funcionalidade:**
+Testa comportamento central: carregar prancha, tocar símbolo, falar, limpar frase, abrir urgente.
+
+**Prompt ideal:**
+
+```text
+Gerar CommunicationViewModelTest.kt.
+
+Criar testes unitários para CommunicationViewModel.
+
+Testar:
+- estado inicial carrega prancha principal;
+- tocar símbolo chama TTS;
+- modo frase acumula símbolos;
+- limpar frase esvazia estado;
+- abrir urgente troca para prancha urgente;
+- erro de TTS não derruba estado da UI.
+
+Regras:
+- usar FakeTtsController;
+- testes determinísticos;
+- sem internet;
+- sem banco;
+- sem Android instrumentation se não necessário.
+
+Consultar:
+docs/01-Obrigatorios/009_Plano_de_Testes.md
+docs/01-Obrigatorios/004_Requisitos_Nao_Funcionais.md
+docs/02-Diagramas/005_Diagrama_Sequencia_TTS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+009_Plano_de_Testes.md
+004_Requisitos_Nao_Funcionais.md
+005_Diagrama_Sequencia_TTS.md
+```
+
+---
+
+## 050 — AccessibilityChecklistTest.md
+
+**Endereço:**
+
+```text
+docs/04-Frontend_Neurodivergente/004_CHECKLIST_ACESSIBILIDADE_FRONTEND.md
+```
+
+**Funcionalidade:**
+Documento de checklist para validar se o frontend está respeitando o público neurodivergente e cuidadores.
+
+**Prompt ideal:**
+
+```text
+Gerar o arquivo 004_CHECKLIST_ACESSIBILIDADE_FRONTEND.md.
+
+Criar checklist objetivo para validar o frontend do app Fala Comigo.
+
+Itens obrigatórios:
+- app abre direto na comunicação;
+- sem login obrigatório;
+- sem internet obrigatória;
+- SymbolCard com toque grande;
+- TalkBack legível;
+- Switch Access viável;
+- sem drag-and-drop como única opção;
+- sem swipe como única opção;
+- rotina Urgente acessível;
+- TTS falha sem derrubar app;
+- texto simples para cuidadores;
+- tela de licenças ARASAAC correta;
+- editor protegido;
+- botão voltar para comunicação sempre claro.
+
+Consultar:
+docs/01-Obrigatorios/008_Design_System_Acessibilidade.md
+docs/04-Frontend_Neurodivergente/000_CONTRATO_FRONTEND.md
+docs/99-Auditoria/NOTA_E_MELHORIAS.md
+```
+
+**Arquivos a consultar/anexar:**
+
+```text
+008_Design_System_Acessibilidade.md
+000_CONTRATO_FRONTEND.md
+NOTA_E_MELHORIAS.md
+```
+
+---
+
+# Ordem soberana de execução
+
+```text
+001 MainActivity.kt
+002 FalaComigoApp.kt
+003 AppRoutes.kt
+004 AppNavHost.kt
+
+005 ColorTokens.kt
+006 TypeTokens.kt
+007 SizeTokens.kt
+008 SpacingTokens.kt
+009 FalaComigoTheme.kt
+
+010 SymbolUiModel.kt
+011 BoardUiModel.kt
+012 RoutineUiModel.kt
+
+013 SeedSymbols.kt
+014 SeedBoards.kt
+015 SeedRoutines.kt
+
+016 SymbolCard.kt
+017 BoardGrid.kt
+018 RoutineCard.kt
+019 PhraseBar.kt
+020 EmergencyButton.kt
+021 EmptyState.kt
+022 ConfirmActionSheet.kt
+023 ArasaacAttribution.kt
+
+024 TalkBackLabels.kt
+025 AccessibleActions.kt
+026 MotionSettings.kt
+
+027 CommunicationUiState.kt
+028 CommunicationViewModel.kt
+029 CommunicationScreen.kt
+030 EmergencyBoardScreen.kt
+031 BoardSelectorScreen.kt
+
+032 TtsController.kt
+033 AndroidTtsController.kt
+034 FakeTtsController.kt
+
+035 PinGateScreen.kt
+036 BoardEditorScreen.kt
+037 SymbolPickerScreen.kt
+038 SlotEditorScreen.kt
+039 MoveSymbolScreen.kt
+
+040 SettingsScreen.kt
+041 AccessibilitySettingsScreen.kt
+042 VoiceSettingsScreen.kt
+043 AboutLicenseScreen.kt
+
+044 OfflineReadinessScreen.kt
+045 TtsHealthScreen.kt
+
+046 CaregiverIntroScreen.kt
+
+047 SymbolCardPreview.kt
+048 CommunicationScreenPreview.kt
+049 CommunicationViewModelTest.kt
+050 004_CHECKLIST_ACESSIBILIDADE_FRONTEND.md
+```
+
+---
+
+# Gate de aceite deste ciclo
+
+Este ciclo só deve ser considerado fechado quando o app conseguir cumprir isto:
+
+```text
+Ao abrir o app, a pessoa vê uma prancha clara.
+Ao tocar em um símbolo, o app tenta falar.
+Se a voz falhar, o app não quebra.
+A prancha urgente existe.
+O editor não aparece por acidente.
+Os botões são grandes.
+A interface é calma.
+A mãe, o pai ou cuidador entendem sem manual.
+A pessoa neurodivergente não precisa entender o sistema para se comunicar.
+```
+
+**Frase soberana do ciclo:**
+
+```text
+O frontend do Fala Comigo não deve parecer um software.
+Deve parecer uma ponte calma, confiável e imediata entre a necessidade da pessoa e o mundo que precisa ouvi-la.
+```
+
+Login no app é algo incômodo que deveria ser opcional e não obrigatório.
+
+Perfeito. Isso deve virar **regra soberana de produto**.
+
+## Decisão atualizada
+
+**Login no Fala Comigo deve ser opcional, nunca obrigatório.**
+
+A pessoa neurodivergente, a mãe, o pai ou cuidador deve conseguir:
+
+```text
+abrir o app
+ver a prancha
+tocar no símbolo
+falar
+usar urgente
+editar localmente
+usar offline
+```
+
+sem criar conta, sem e-mail, sem senha, sem internet e sem aceitar fluxo complexo.
+
+## Regra para o projeto
+
+```text
+Nenhuma função essencial de comunicação pode depender de login.
+```
+
+## O que pode ficar sem login
+
+```text
+Pranchas principais
+Prancha urgente
+TTS
+Modo frase
+Editor local
+Símbolos locais
+Configurações de acessibilidade
+Configurações de voz
+Dados salvos no aparelho
+Uso offline
+```
+
+## O que pode exigir login futuramente, se existir
+
+```text
+Backup em nuvem
+Sincronização entre celulares
+Compartilhamento familiar
+Restauração de dados
+Acesso de profissional autorizado
+Histórico multiusuário
+```
+
+Mesmo assim, deve ser apresentado como:
+
+```text
+Criar conta é opcional.
+O app funciona normalmente sem conta.
+```
+
+## Correção na lista sequenciada
+
+Onde aparecer `login`, `auth`, `conta`, `cadastro`, `session`, `usuário autenticado`, deve ser tratado como **fora do MVP**.
+
+O termo correto para o ciclo atual é:
+
+```text
+Acesso local sem conta
+```
+
+E não:
+
+```text
+Login
+Autenticação obrigatória
+Cadastro inicial
+Conta de usuário
+```
+
+## Frase soberana
+
+```text
+O Fala Comigo não pode colocar uma senha entre a pessoa e a própria voz.
+```

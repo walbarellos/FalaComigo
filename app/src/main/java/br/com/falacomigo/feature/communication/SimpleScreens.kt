@@ -1,38 +1,22 @@
 package br.com.falacomigo.feature.communication
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
 import br.com.falacomigo.core.seed.SeedBoards
@@ -43,71 +27,46 @@ fun EmergencyBoardScreen(
     onNavigateBack: () -> Unit,
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
-    val urgentBoard = SeedBoards.boards.firstOrNull { it.isEmergency } ?: SeedBoards.findById("urgente")!!
+    val state by viewModel.state.collectAsState()
+    val urgentBoard = SeedBoards.boards.find { it.isEmergency } ?: SeedBoards.findById("urgente")!!
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Urgente") },
+                title = { Text("Urgente", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = ColorTokens.SecondaryContainer
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.SecondaryContainer)
             )
-        }
+        },
+        containerColor = ColorTokens.Background
     ) { paddingValues ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(urgentBoard.columns),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(SpacingTokens.ScreenPadding),
-            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.GridGap),
-            verticalArrangement = Arrangement.spacedBy(SpacingTokens.GridGap)
+            columns = GridCells.Fixed(4),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(urgentBoard.symbols) { symbol ->
-                Card(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clickable { viewModel.onSymbolClick(symbol) },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = ColorTokens.SecondaryContainer),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(ColorTokens.Secondary),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    symbol.label.take(1),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = ColorTokens.OnSecondary
-                                )
-                            }
-                            Text(
-                                symbol.label,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                    }
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val imageResId = androidx.compose.runtime.remember(symbol.id) {
+                    context.resources.getIdentifier(
+                        symbol.id.lowercase(),
+                        "drawable",
+                        context.packageName
+                    )
                 }
+                SymbolCard(
+                    symbol = symbol,
+                    imageResId = imageResId,
+                    vibrationEnabled = state.vibrationEnabled,
+                    isSpeaking = state.speakingSymbolId == symbol.id,
+                    onClick = { viewModel.onSymbolClick(symbol) }
+                )
             }
         }
     }
@@ -123,35 +82,34 @@ fun BoardSelectorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Escolher Prancha") },
+                title = { Text("Escolher Prancha", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
             )
-        }
+        },
+        containerColor = ColorTokens.Background
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(SpacingTokens.Md)
+            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SeedBoards.boards.forEach { board ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SpacingTokens.Sm)
-                        .clickable { onBoardSelected(board.id) },
-                    shape = RoundedCornerShape(12.dp)
+                Surface(
+                    onClick = { 
+                        viewModel.selectBoard(board.id)
+                        onBoardSelected(board.id) 
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = ColorTokens.SurfaceVariant,
+                    tonalElevation = 2.dp
                 ) {
-                    Box(modifier = Modifier.padding(SpacingTokens.Md)) {
-                        Text(board.title, style = MaterialTheme.typography.titleMedium)
+                    Box(modifier = Modifier.padding(20.dp)) {
+                        Text(board.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 }
             }

@@ -4,6 +4,8 @@ class FakeTtsController : TtsController {
     private var lastSpoken: String = ""
     private var speakCount = 0
     private var stopped = false
+    private var onStartListener: ((String) -> Unit)? = null
+    private var onDoneListener: ((String) -> Unit)? = null
 
     override fun speak(text: String) {
         if (text.isBlank()) return
@@ -11,6 +13,12 @@ class FakeTtsController : TtsController {
         speakCount++
         stopped = false
         println("FAKE TTS: $text")
+        
+        onStartListener?.invoke(text.hashCode().toString())
+        // Simulate speech delay
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            onDoneListener?.invoke(text.hashCode().toString())
+        }, 1000)
     }
 
     override fun stop() {
@@ -24,6 +32,15 @@ class FakeTtsController : TtsController {
     }
 
     override fun isAvailable(): Boolean = true
+
+    override fun setOnSpeechProgressListener(
+        onStart: (String) -> Unit,
+        onDone: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        this.onStartListener = onStart
+        this.onDoneListener = onDone
+    }
 
     fun getLastSpoken() = lastSpoken
     fun getSpeakCount() = speakCount

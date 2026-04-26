@@ -5,4 +5,5 @@ interface TtsController {
     fun stop()
     fun shutdown()
     fun isAvailable(): Boolean
+    fun setOnSpeechProgressListener(onStart: (String) -> Unit, onDone: (String) -> Unit, onError: (String) -> Unit)
 }

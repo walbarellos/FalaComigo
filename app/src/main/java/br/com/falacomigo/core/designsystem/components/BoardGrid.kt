@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
@@ -39,8 +40,17 @@ fun BoardGrid(
             items = symbols,
             key = { it.id }
         ) { symbol ->
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val imageResId = remember(symbol.id) {
+                context.resources.getIdentifier(
+                    symbol.id.lowercase(),
+                    "drawable",
+                    context.packageName
+                )
+            }
             SymbolCard(
                 symbol = symbol,
+                imageResId = imageResId,
                 onClick = { onSymbolClick(symbol) }
             )
         }
