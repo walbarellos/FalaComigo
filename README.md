@@ -694,7 +694,7 @@ Agradecemos imenso a todas as pessoas que contribuem para este projeto:
 | **Nome** | Willian Albarello |
 | **Papel** | Criador, Desenvolvedor Principal |
 | **Contato** | [Perfil GitHub](https://github.com/walbarelly) |
-| **Email** | [Email para contato](mailto:willian@falacomigo.app) |
+| **Email** | [Email para contato](mailto:willianalbarello@gmail.com) |
 
 ### 10.2 Agradecimentos Institutionais
 
