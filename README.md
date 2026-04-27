@@ -40,7 +40,7 @@ Tabela de Conteúdos
 
 [![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.3.0-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
 [![Security: VirusTotal Clean](https://img.shields.io/badge/Seguran%C3%A7a-Auditado-brightgreen?style=flat-square&logo=google-cloud)](https://www.virustotal.com/gui/file/29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb/detection)
-[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/licen%C3%A7a-CC%20BY--NC--ND%204.0-orange?style=flat-square)](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.pt_BR)
+[![License: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
 [![UI Performance: 60FPS](https://img.shields.io/badge/Performance-60FPS-blue?style=flat-square)](https://github.com/walbarellos/FalaComigo)
 
 ---
@@ -119,7 +119,7 @@ Execute no seu terminal para garantir a integridade:
 ---
 
 ## 9. Licença e Termos Legais
-O **Fala Comigo** é distribuído sob licença **CC BY-NC-ND 4.0**.
+O **Fala Comigo** é distribuído sob licença **GNU General Public License v3.0 (GPLv3)**. Esta licença garante que o código permaneça livre e protegido contra apropriação indevida ou fechamento por terceiros.
 
 ### Criador do Projeto
 | Informação | Detalhe |

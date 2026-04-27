@@ -6,7 +6,7 @@
 # -------------------------------------------
 # Documentação e Explanations
 # -------------------------------------------
-# Ignorar toda a pasta de documentação
+# PROTEÇÃO: Ignorar toda a pasta de documentação (Sigilo de Metodologia)
 docs/
 docs/*
 
