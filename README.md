@@ -1,7 +1,4 @@
-<!--
-
-FALA COMIGO - Comunicação Aumentativa e Alternativa
-========================================== 
+# Fala Comigo - Comunicação Aumentativa e Alternativa
 
 [![Fala Comigo](https://img.shields.io/badge/Fala-Comigo-007AFF?style=for-the-badge&logo=speech)](https://github.com/walbarellos/FalaComigo)
 [![Versão](https://img.shields.io/github/v/release/walbarellos/FalaComigo?include_prereleases&style=flat-square)](https://github.com/walbarellos/FalaComigo/releases/latest)
@@ -22,7 +19,7 @@ FALA COMIGO - Comunicação Aumentativa e Alternativa
 
 Este arquivo faz parte do projeto Fala Comigo.
 
-Para informações completas sobre o projeto, visite nossa **[Wiki Oficial](./docs/wiki/Home.md)**.
+Para informações completas sobre o projeto, visite nossa [Wiki Oficial](./docs/wiki/Home.md).
 
 ==========================================
 Tabela de Conteúdos
@@ -46,17 +43,19 @@ Tabela de Conteúdos
 
 ---
 
-## 2. 🛡️ Segurança e Integridade (Auditado)
+## 2. Segurança e Integridade (Auditado)
 
 O Fala Comigo v0.3.0 foi submetido a rigorosas auditorias de segurança e integridade para garantir a proteção de instituições e usuários.
 
-### 🟢 Relatório VirusTotal (Google)
-O binário oficial (APK) foi analisado por **70+ motores de antivírus** e obteve **0 detecções**.
+### Relatório VirusTotal (Google)
+O binário oficial (APK) foi analisado por 70+ motores de antivírus (como Kaspersky, Symantec e Microsoft) e obteve 0 detecções.
 
-*   [**Ver Relatório de Auditoria em Tempo Real**](https://www.virustotal.com/gui/file/29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb/detection)
+*   [Ver Relatório de Auditoria em Tempo Real](https://www.virustotal.com/gui/file/29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb/detection)
 
-### 🔏 Selo de Autenticidade (SHA-256)
+### Selo de Autenticidade (SHA-256)
 Código SHA-256 oficial: `29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb`
+
+> **Dica:** Você pode usar nossa ferramenta de [Verificação Web](./apk_verifier.html) para validar o APK instantaneamente.
 
 ---
 
@@ -65,23 +64,49 @@ Código SHA-256 oficial: `29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c
 ### O que é o Fala Comigo?
 O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alternativa (CAA) de alta performance. Desenvolvido para pessoas com complexidades de comunicação, ele permite transformar símbolos pictóricos em voz digital com agilidade e fluidez.
 
+### Missão
+> "Democratizar o acesso à comunicação através de uma tecnologia soberana, segura e de alto desempenho."
+
 ---
 
 ## 4. Funcionalidades Principais (v0.3.0)
 
-### 🕺 Engenharia de Organização
-*   **Drag-and-Drop Suprema**: Reordenamento de cards em tempo real com processamento via GPU (60 FPS) e feedback háptico.
-*   **Gestão Independente**: Separação clara entre o **Dicionário Global** e as **Rotinas**.
+### Engenharia de Organização
+*   **Drag-and-Drop**: Reordenamento de cards em tempo real com processamento via GPU (60 FPS) e feedback háptico.
+*   **Gestão Independente**: Separação clara entre o Dicionário Global e as Rotinas.
 
-### 🕒 Agilidade Cognitiva
+### Agilidade Cognitiva
 *   **Filtro de Recentes**: O app aprende com o uso e mantém os 20 itens mais frequentes no topo.
 *   **Filtros Dinâmicos**: Categorias que filtram o catálogo global instantaneamente.
 
 ---
 
+## 5. Arquitetura e Tecnologias
+
+| Camada | Tecnologia | Destaque |
+|--------|------------|----------|
+| **UI** | Jetpack Compose | Renderização estável em 60 FPS |
+| **Imagens** | Coil 2.6.0 | Hardware Bitmaps (Direct GPU upload) |
+| **Banco** | Room (v30) | Rastro de uso persistente |
+| **Arquitetura** | Clean Arch | Manutenibilidade institucional |
+
+---
+
+## 6. Instalação e Verificação
+
+### 1. Baixe o APK
+Acesse as [Releases Oficiais](https://github.com/walbarellos/FalaComigo/releases) e baixe o arquivo `FalaComigo-v0.3.0-release.apk`.
+
+### 2. Verifique o Hash
+Execute no seu terminal para garantir a integridade:
+*   **Windows**: `certutil -hashfile FalaComigo-v0.3.0-release.apk SHA256`
+*   **macOS/Linux**: `sha256sum FalaComigo-v0.3.0-release.apk`
+
+---
+
 ## 8. Roadmap e Versões Futuras
 
-### ✅ Concluído (v0.3.0)
+### Concluído (v0.3.0)
 - [x] Motor Drag-and-Drop de alta performance.
 - [x] Filtro inteligente de palavras recentes.
 - [x] Sistema de gestão independente de palavras e grupos.
@@ -99,4 +124,4 @@ O **Fala Comigo** é distribuído sob licença **CC BY-NC-ND 4.0**.
 | **Email** | willian@falacomigo.app |
 
 ---
-*Desenvolvido com 🥒 por Willian Albarello.*
+*Desenvolvido por Willian Albarello.*
