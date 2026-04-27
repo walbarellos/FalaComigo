@@ -29,7 +29,7 @@ APP_NAME="Gradle"
 APP_BASE_NAME=${0##*/}
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD=maximum
@@ -140,13 +140,9 @@ GRADLE_OPTS="$GRADLE_OPTS -Xmx64m -Xms64m"
 #     temporary args, which are eval'd later in this script.
 #   * $GRADLE_OPTS is also used by the gradle wrapper for its own purposes.
 #   * There is no systematic way of handling special characters like ' and "
-JVM_OPTS_QUOTED=$( printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" | \
-    sed -e 's/[[:space:]]*/"/g' \
-        -e 's/"/\\"/g' \
-    )
-eval "set -- $JVM_OPTS_QUOTED"
+JVM_OPTS_QUOTED=""
+for arg in $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS; do
+    JVM_OPTS_QUOTED="$JVM_OPTS_QUOTED \"$arg\""
+done
 
-exec "$JAVACMD" \
-    -classpath "$CLASSPATH" \
-    org.gradle.wrapper.GradleWrapperMain \
-    "$@"
+eval "exec \"$JAVACMD\" $JVM_OPTS_QUOTED -classpath \"$CLASSPATH\" org.gradle.wrapper.GradleWrapperMain \"\$@\""

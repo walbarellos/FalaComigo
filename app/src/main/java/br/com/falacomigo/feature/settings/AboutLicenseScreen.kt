@@ -84,7 +84,7 @@ fun AboutLicenseScreen(onNavigateBack: () -> Unit) {
             )
 
             Text(
-                text = "Versão 1.0.0",
+                text = "Versão 0.2.0",
                 style = MaterialTheme.typography.bodySmall,
                 color = ColorTokens.OnSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)

@@ -13,13 +13,19 @@ interface SymbolDao {
     @Query("SELECT * FROM symbols ORDER BY labelPt ASC")
     fun getAllSymbols(): Flow<List<SymbolEntity>>
 
+    @Query("SELECT * FROM symbols ORDER BY labelPt ASC")
+    suspend fun getAllSymbolsOnce(): List<SymbolEntity>
+
     @Query("SELECT * FROM symbols WHERE id = :id")
     suspend fun getSymbolById(id: String): SymbolEntity?
 
     @Query("SELECT * FROM symbols WHERE category = :category ORDER BY labelPt ASC")
     fun getSymbolsByCategory(category: String): Flow<List<SymbolEntity>>
 
-    @Query("SELECT * FROM symbols WHERE labelPt LIKE '%' || :query || '%' ORDER BY labelPt ASC")
+    @Query("SELECT * FROM symbols WHERE id IN (:ids)")
+    fun getSymbolsByIds(ids: List<String>): Flow<List<SymbolEntity>>
+
+    @Query("SELECT * FROM symbols WHERE labelPt LIKE '%' || :query || '%'")
     fun searchSymbols(query: String): Flow<List<SymbolEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -33,6 +39,12 @@ interface SymbolDao {
 
     @Query("DELETE FROM symbols WHERE id = :id")
     suspend fun deleteSymbol(id: String)
+
+    @Query("SELECT * FROM symbols ORDER BY lastUsedAt DESC LIMIT 20")
+    fun getRecentlyUsed(): Flow<List<SymbolEntity>>
+
+    @Query("UPDATE symbols SET lastUsedAt = :timestamp WHERE id = :symbolId")
+    suspend fun updateUsage(symbolId: String, timestamp: Long)
 
     @Query("SELECT COUNT(*) FROM symbols")
     suspend fun getSymbolCount(): Int

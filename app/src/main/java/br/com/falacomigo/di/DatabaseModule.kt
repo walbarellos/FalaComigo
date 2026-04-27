@@ -41,4 +41,10 @@ object DatabaseModule {
     fun provideRoutineDao(database: FalaComigoDatabase): RoutineDao {
         return database.routineDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideCachedPictogramDao(database: FalaComigoDatabase): br.com.falacomigo.data.local.dao.CachedPictogramDao {
+        return database.cachedPictogramDao()
+    }
 }

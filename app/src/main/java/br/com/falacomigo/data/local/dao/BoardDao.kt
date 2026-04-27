@@ -17,6 +17,9 @@ interface BoardDao {
     @Query("SELECT * FROM boards WHERE id = :id")
     suspend fun getBoardById(id: String): BoardEntity?
 
+    @Query("SELECT * FROM boards WHERE id = :id")
+    fun getBoardByIdFlow(id: String): Flow<BoardEntity?>
+
     @Query("SELECT * FROM boards WHERE isEmergency = 1 LIMIT 1")
     suspend fun getEmergencyBoard(): BoardEntity?
 

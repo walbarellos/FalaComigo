@@ -11,9 +11,11 @@ data class SymbolEntity(
     val labelPt: String,
     val spokenText: String,
     val imagePath: String? = null,
+    val imageUrl: String? = null,
     val category: String = "general",
     val isCustom: Boolean = false,
-    val cachedAt: Long? = null
+    val cachedAt: Long? = null,
+    val lastUsedAt: Long = 0L // Rastro de uso para o filtro Recentes
 )
 
 @Entity(tableName = "boards")
@@ -47,7 +49,9 @@ data class RoutineEntity(
     @PrimaryKey
     val id: String,
     val name: String,
-    val icon: String = "home",
+    val icon: String = "history",
+    val spokenText: String = "", // CAMPO QUE FALTAVA
+    val symbolsJson: String = "[]",
     val displayOrder: Int = 0,
     val isAuto: Boolean = false
 )
@@ -64,4 +68,13 @@ data class SymbolUsageEntity(
     @PrimaryKey
     val symbolId: String,
     val touchedAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "cached_pictograms")
+data class CachedPictogram(
+    @PrimaryKey val id: Int,
+    val label: String,
+    val imageUrl: String,
+    val category: String = "custom",
+    val savedAt: Long = System.currentTimeMillis(),
 )

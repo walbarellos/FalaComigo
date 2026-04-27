@@ -1,21 +1,22 @@
 package br.com.falacomigo.feature.communication
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
+import android.view.HapticFeedbackConstants
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -23,20 +24,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
-import br.com.falacomigo.core.model.SymbolUiModel
-import br.com.falacomigo.core.model.Routine
 import br.com.falacomigo.core.model.FavoritePhrase
-import br.com.falacomigo.core.seed.SeedBoards
-import br.com.falacomigo.core.seed.SeedSymbols
+import br.com.falacomigo.core.model.RoutineUiModel
+import br.com.falacomigo.core.model.SymbolUiModel
+import kotlin.math.roundToInt
+
+private enum class CommunicationTab(val label: String, val icon: ImageVector) {
+    INICIO("Início", Icons.Default.GridView),
+    ROTINAS("Gestão", Icons.Default.LibraryBooks),
+    FAVORITOS("Favoritos", Icons.Default.Favorite)
+}
+
+private val ROOT_FILTER_IDS = setOf("comunicacao", "recentes", "numeral", "social", "alimentacao", "atividades", "necessidades", "emocoes")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,76 +61,67 @@ fun CommunicationScreen(
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val board = state.currentBoard
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = remember { listOf("Início", "Rotinas", "Favoritos") }
+    val currentBoard = state.currentBoard
+    val isRoutineBoard = currentBoard.id.startsWith("routine_")
+
+    var selectedTab by remember { mutableStateOf(CommunicationTab.INICIO) }
+    var isEditMode by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isEditMode || currentBoard.id != "comunicacao" || selectedTab != CommunicationTab.INICIO) {
+        if (isEditMode) isEditMode = false
+        else if (selectedTab != CommunicationTab.INICIO) selectedTab = CommunicationTab.INICIO
+        else viewModel.selectBoard("comunicacao")
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = board.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = ColorTokens.OnSurface
-                        )
-                        if (state.isSpeaking) {
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Surface(color = ColorTokens.FocusHighlight, shape = RoundedCornerShape(12.dp)) {
-                                Text("Falando...", fontSize = 10.sp, color = Color.White, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
-                            }
-                        }
-                    }
-                },
+                title = { Text(if (isEditMode) "Organizar" else if (selectedTab == CommunicationTab.ROTINAS) "Gestão de Conteúdo" else currentBoard.title, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
-                    if (board.id != "comunicacao") {
+                    if (isEditMode) {
+                        IconButton(onClick = { isEditMode = false }) { Icon(Icons.Default.Close, "Sair") }
+                    } else if (currentBoard.id != "comunicacao") {
                         IconButton(onClick = { viewModel.selectBoard("comunicacao") }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                            Icon(Icons.Default.ArrowBack, "Voltar")
                         }
                     }
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToEmergency) {
-                        Icon(Icons.Default.Warning, contentDescription = "Urgente", tint = ColorTokens.Error, modifier = Modifier.size(28.dp))
+                    if (!isEditMode && selectedTab == CommunicationTab.INICIO) {
+                        IconButton(onClick = { isEditMode = true }) { Icon(Icons.Default.OpenWith, "Mover", tint = ColorTokens.Primary) }
                     }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Configurações", tint = ColorTokens.OnSurfaceVariant, modifier = Modifier.size(24.dp))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
+                    IconButton(onClick = onNavigateToEmergency) { Icon(Icons.Default.Warning, "Urgente", tint = ColorTokens.Error) }
+                    IconButton(onClick = onNavigateToSettings) { Icon(Icons.Default.Settings, "Ajustes") }
+                }
             )
         },
-        containerColor = ColorTokens.Background
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
-        ) {
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = ColorTokens.Surface,
-                contentColor = ColorTokens.Primary,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title, fontSize = 14.sp, fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Normal) }
+        bottomBar = {
+            NavigationBar(containerColor = ColorTokens.Surface) {
+                CommunicationTab.entries.forEach { tab ->
+                    NavigationBarItem(
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        label = { Text(tab.label) },
+                        icon = { Icon(tab.icon, null) }
                     )
                 }
             }
-
-            if (selectedTab == 0) {
-                BoardSelectorRow(currentBoardId = board.id, onBoardSelect = { viewModel.selectBoard(it) })
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            if (selectedTab == CommunicationTab.INICIO) {
+                // ✅ PATCH: Removido o botão "Voltar para Início" duplicado do corpo.
+                // Agora apenas a barra de seletores (Chips) aparece quando NÃO é uma rotina.
+                if (!isRoutineBoard) {
+                    BoardSelectorRow(currentBoardId = currentBoard.id, onBoardSelect = viewModel::selectBoard)
+                }
             }
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            Box(modifier = Modifier.weight(1f)) {
                 when (selectedTab) {
-                    0 -> inicioTab(board, state.imageIdCache, state.speakingSymbolId, state.vibrationEnabled, viewModel)
-                    1 -> rotinasTab(viewModel)
-                    2 -> favoritosTab(state.imageIdCache, viewModel)
+                    CommunicationTab.INICIO -> InicioTab(currentBoard.symbols, state.speakingSymbolId, state.vibrationEnabled, isEditMode, viewModel::onSymbolClick, viewModel::moveSymbol)
+                    CommunicationTab.ROTINAS -> RotinasTab(state, viewModel)
+                    CommunicationTab.FAVORITOS -> FavoritosTab(state.favorites, viewModel::onSymbolClick)
                 }
             }
         }
@@ -124,148 +129,226 @@ fun CommunicationScreen(
 }
 
 @Composable
-fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> Unit) {
-    val scrollState = rememberScrollState()
-    val selectableBoards = remember { SeedBoards.boards.filter { !it.isEmergency } }
-    Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState).padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        selectableBoards.forEach { board ->
-            val isSelected = currentBoardId == board.id
-            Surface(
-                onClick = { onBoardSelect(board.id) },
-                shape = RoundedCornerShape(16.dp),
-                color = if (isSelected) ColorTokens.Primary else ColorTokens.SurfaceVariant,
-                modifier = Modifier.height(42.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Text(board.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isSelected) Color.White else ColorTokens.OnSurfaceVariant)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun inicioTab(
-    board: br.com.falacomigo.core.model.BoardUiModel, 
-    imageIdCache: Map<String, Int>,
-    speakingSymbolId: String?,
-    vibrationEnabled: Boolean,
-    viewModel: CommunicationViewModel
-) {
-    val symbols = remember(board.id) { board.symbols }
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items = symbols, key = { it.id }, contentType = { "symbol" }) { symbol ->
-            val onSymbolClick = remember(symbol.id) { { viewModel.onSymbolClick(symbol) } }
-            SymbolCard(
-                symbol = symbol,
-                imageResId = imageIdCache[symbol.id.lowercase()] ?: 0,
-                isSpeaking = speakingSymbolId == symbol.id,
-                vibrationEnabled = vibrationEnabled,
-                onClick = onSymbolClick
+private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> Unit) {
+    val chips = listOf("comunicacao" to "Todos", "recentes" to "Recentes", "numeral" to "Números", "social" to "Social", "alimentacao" to "Comer", "atividades" to "Lazer", "necessidades" to "Preciso", "emocoes" to "Sentir")
+    Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        chips.forEach { (id, label) ->
+            FilterChip(
+                selected = currentBoardId == id, 
+                onClick = { onBoardSelect(id) }, 
+                label = { Text(label) },
+                leadingIcon = { if (id == "recentes") Icon(Icons.Default.History, null, modifier = Modifier.size(16.dp)) }
             )
         }
     }
 }
 
 @Composable
-private fun rotinasTab(viewModel: CommunicationViewModel) {
-    val state by viewModel.state.collectAsState()
-    var showCreateDialog by remember { mutableStateOf(false) }
+private fun InicioTab(
+    symbols: List<SymbolUiModel>, 
+    speakingId: String?, 
+    vibration: Boolean, 
+    isEditMode: Boolean,
+    onClick: (SymbolUiModel) -> Unit,
+    onMove: (Int, Int) -> Unit
+) {
+    val view = LocalView.current
+    val gridState = rememberLazyGridState()
     
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            state.routines.forEach { routine ->
-                RoutineCard(routine = routine, onClick = { viewModel.playRoutine(routine) }, onDelete = { viewModel.deleteRoutine(routine.id) }, onEdit = { viewModel.startEditRoutine(routine) })
+    var draggedIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffset by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(isEditMode) {
+                if (!isEditMode) return@pointerInput
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        val item = gridState.layoutInfo.visibleItemsInfo.find { 
+                            offset.x.roundToInt() in it.offset.x..(it.offset.x + it.size.width) &&
+                            offset.y.roundToInt() in it.offset.y..(it.offset.y + it.size.height)
+                        }
+                        item?.let {
+                            draggedIndex = it.index
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        }
+                    },
+                    onDragEnd = { draggedIndex = null; dragOffset = Offset.Zero },
+                    onDragCancel = { draggedIndex = null; dragOffset = Offset.Zero },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        dragOffset += dragAmount
+                        val currentDraggedIndex = draggedIndex ?: return@detectDragGesturesAfterLongPress
+                        val layoutInfo = gridState.layoutInfo
+                        val visibleItems = layoutInfo.visibleItemsInfo
+                        val draggedItem = visibleItems.find { it.index == currentDraggedIndex } ?: return@detectDragGesturesAfterLongPress
+                        val centerX = draggedItem.offset.x + (draggedItem.size.width / 2) + dragOffset.x
+                        val centerY = draggedItem.offset.y + (draggedItem.size.height / 2) + dragOffset.y
+                        val targetItem = visibleItems.find { item ->
+                            val left = item.offset.x.toFloat()
+                            val right = left + item.size.width
+                            val top = item.offset.y.toFloat()
+                            val bottom = top + item.size.height
+                            centerX in left..right && centerY in top..bottom && item.index != currentDraggedIndex
+                        }
+                        if (targetItem != null) {
+                            onMove(currentDraggedIndex, targetItem.index)
+                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            draggedIndex = targetItem.index
+                            dragOffset = Offset.Zero 
+                        }
+                    }
+                )
             }
-        }
-        FloatingActionButton(onClick = { showCreateDialog = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), containerColor = ColorTokens.Primary) {
-            Icon(Icons.Default.Add, contentDescription = "Nova Rotina", tint = Color.White)
-        }
-    }
+    ) {
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Fixed(4), 
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(12.dp), 
+            horizontalArrangement = Arrangement.spacedBy(10.dp), 
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            userScrollEnabled = !isEditMode
+        ) {
+            itemsIndexed(items = symbols, key = { _, s -> s.id }) { index, symbol ->
+                val isSpeaking by remember(speakingId) { derivedStateOf { speakingId == symbol.id } }
+                val isBeingDragged = draggedIndex == index
 
-    if (showCreateDialog) {
-        RoutineDialog(title = "Criar Rotina", onDismiss = { showCreateDialog = false }, onConfirm = { name, symbols ->
-            viewModel.createRoutine(name, symbols.split(" ").filter { it.isNotBlank() })
-            showCreateDialog = false
-        })
-    }
-
-    state.editingRoutine?.let { routine ->
-        RoutineDialog(title = "Editar Rotina", initialName = routine.name, initialPhrase = routine.symbols.joinToString(" "), onDismiss = { viewModel.clearEditRoutine() }, onConfirm = { name, symbols ->
-            viewModel.updateRoutine(routine.id, name, symbols.split(" ").filter { it.isNotBlank() })
-            viewModel.clearEditRoutine()
-        })
-    }
-}
-
-@Composable
-private fun RoutineDialog(title: String, initialName: String = "", initialPhrase: String = "", onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
-    var name by remember { mutableStateOf(initialName) }
-    var phrase by remember { mutableStateOf(initialPhrase) }
-    val suggestedSymbols = remember { SeedSymbols.symbols }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title, fontWeight = FontWeight.ExtraBold) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nome") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                OutlinedTextField(value = phrase, onValueChange = { phrase = it }, label = { Text("Frase") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                Text("Sugestões:", style = MaterialTheme.typography.labelSmall)
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(suggestedSymbols) { symbol ->
-                        AssistChip(onClick = { phrase = if (phrase.isBlank()) symbol.label else "$phrase ${symbol.label}" }, label = { Text(symbol.label) })
+                Box(
+                    modifier = Modifier
+                        .zIndex(if (isBeingDragged) 10f else 0f)
+                        .graphicsLayer {
+                            if (isBeingDragged) {
+                                translationX = dragOffset.x
+                                translationY = dragOffset.y
+                                scaleX = 1.15f
+                                scaleY = 1.15f
+                                shadowElevation = 30f
+                                alpha = 0.9f
+                            } else {
+                                translationX = 0f
+                                translationY = 0f
+                                scaleX = 1f
+                                scaleY = 1f
+                                alpha = if (isEditMode) 0.6f else 1f
+                            }
+                        }
+                ) {
+                    SymbolCard(symbol = symbol, isSpeaking = isSpeaking, vibrationEnabled = vibration, onClick = { if (!isEditMode) onClick(symbol) })
+                    if (isEditMode) {
+                        Icon(Icons.Default.DragHandle, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(14.dp))
                     }
                 }
             }
-        },
-        confirmButton = { Button(onClick = { onConfirm(name, phrase) }, enabled = name.isNotBlank() && phrase.isNotBlank()) { Text("Salvar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
-    )
-}
-
-@Composable
-private fun favoritosTab(imageIdCache: Map<String, Int>, viewModel: CommunicationViewModel) {
-    val state by viewModel.state.collectAsState()
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        state.favorites.forEach { fav ->
-            val symbol = remember(fav.id) { br.com.falacomigo.core.model.SymbolUiModel(id = fav.id, label = fav.text, spokenText = fav.text, category = "social") }
-            val onSymbolClick = remember(fav.id) { { viewModel.onSymbolClick(symbol) } }
-            FavoriteCard(favorite = fav, onClick = onSymbolClick)
         }
     }
 }
 
 @Composable
-private fun RoutineCard(routine: Routine, onClick: () -> Unit, onDelete: () -> Unit, onEdit: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = ColorTokens.SecondaryContainer, tonalElevation = 2.dp) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Schedule, contentDescription = null, tint = ColorTokens.Secondary)
-            Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-                Text(routine.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(routine.symbols.joinToString(" "), style = MaterialTheme.typography.bodySmall, color = ColorTokens.OnSecondaryContainer.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+private fun RotinasTab(state: CommunicationState, viewModel: CommunicationViewModel) {
+    var showCreateRoutine by remember { mutableStateOf(false) }
+    var showWordCreator by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item { Text("Grupos de Acesso Rápido", style = MaterialTheme.typography.titleSmall, color = ColorTokens.Primary, fontWeight = FontWeight.Bold) }
+            items(state.routines, key = { it.id }) { routine ->
+                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = ColorTokens.SurfaceVariant, onClick = { viewModel.openRoutineAsBoard(routine) }) {
+                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(routine.title, fontWeight = FontWeight.Bold)
+                            Text("${routine.symbols.size} itens", fontSize = 12.sp)
+                        }
+                        IconButton(onClick = { viewModel.startEditRoutine(routine) }) { Icon(Icons.Default.Edit, null) }
+                        IconButton(onClick = { viewModel.deleteRoutine(routine.id) }) { Icon(Icons.Default.Delete, null, tint = ColorTokens.Error) }
+                    }
+                }
             }
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = ColorTokens.Primary) }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = ColorTokens.Error) }
         }
+        Column(modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ExtendedFloatingActionButton(onClick = { showWordCreator = true }, icon = { Icon(Icons.Default.Add, null) }, text = { Text("Nova Palavra") }, containerColor = ColorTokens.Secondary, contentColor = Color.White)
+            ExtendedFloatingActionButton(onClick = { showCreateRoutine = true }, icon = { Icon(Icons.Default.LibraryAdd, null) }, text = { Text("Nova Rotina") }, containerColor = ColorTokens.Primary, contentColor = Color.White)
+        }
+    }
+    if (showCreateRoutine || state.editingRoutine != null) {
+        RoutineManagerDialog(title = if (state.editingRoutine == null) "Nova Rotina" else "Editar Rotina", routine = state.editingRoutine, initialSymbols = state.editingRoutineSymbols, searchResults = state.searchResults, isSearching = state.isSearching, onDismiss = { if (state.editingRoutine != null) viewModel.clearEditRoutine() else showCreateRoutine = false }, onSave = { n, s -> viewModel.saveRoutine(n, s); showCreateRoutine = false }, onSearch = viewModel::onSearchQueryChanged, onSymbolClick = viewModel::onSymbolClick)
+    }
+    if (showWordCreator) {
+        WordCreatorDialog(onDismiss = { showWordCreator = false }, onWordCreated = { viewModel.saveSymbol(it); showWordCreator = false }, onSearch = viewModel::onSearchQueryChanged, searchResults = state.searchResults, isSearching = state.isSearching)
     }
 }
 
 @Composable
-private fun FavoriteCard(favorite: FavoritePhrase, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = ColorTokens.PrimaryContainer, tonalElevation = 1.dp) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorTokens.Primary)
-            Text(favorite.text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp))
+private fun RoutineManagerDialog(title: String, routine: RoutineUiModel?, initialSymbols: List<SymbolUiModel>, searchResults: List<SymbolUiModel>, isSearching: Boolean, onDismiss: () -> Unit, onSave: (String, List<SymbolUiModel>) -> Unit, onSearch: (String) -> Unit, onSymbolClick: (SymbolUiModel) -> Unit) {
+    var name by remember(routine) { mutableStateOf(routine?.title ?: "") }
+    var selectedSymbols by remember(initialSymbols) { mutableStateOf(initialSymbols) }
+    var query by remember { mutableStateOf("") }
+    var showWordCreatorInRoutine by remember { mutableStateOf(false) }
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(title, fontWeight = FontWeight.ExtraBold) }, text = {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nome") }, modifier = Modifier.fillMaxWidth())
+            HorizontalDivider()
+            Text("Itens Selecionados:", style = MaterialTheme.typography.labelLarge, color = ColorTokens.Primary)
+            if (selectedSymbols.isNotEmpty()) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(70.dp)) {
+                    items(selectedSymbols, key = { it.id }) { s ->
+                        Box(modifier = Modifier.size(60.dp)) { SymbolCard(symbol = s, isSmall = true, onClick = { selectedSymbols = selectedSymbols - s }) }
+                    }
+                }
+            } else {
+                Text("Adicione palavras abaixo.", fontSize = 11.sp, color = Color.Gray)
+            }
+            OutlinedTextField(value = query, onValueChange = { query = it; onSearch(it) }, placeholder = { Text("Buscar no catálogo...") }, modifier = Modifier.fillMaxWidth(), trailingIcon = { if (isSearching) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Icon(Icons.Default.Search, null) })
+            if (searchResults.isNotEmpty()) {
+                Text("Resultados:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(80.dp)) {
+                    items(searchResults, key = { it.id }) { s ->
+                        Box(modifier = Modifier.size(70.dp)) { SymbolCard(symbol = s, isSmall = true, onClick = { if (!selectedSymbols.any { it.id == s.id }) selectedSymbols = selectedSymbols + s }) }
+                    }
+                }
+            }
+            Button(onClick = { showWordCreatorInRoutine = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = ColorTokens.Secondary)) {
+                Icon(Icons.Default.Add, null); Spacer(Modifier.width(8.dp)); Text("Criar Nova Palavra")
+            }
+        }
+    }, confirmButton = { Button(onClick = { onSave(name, selectedSymbols) }, enabled = name.isNotBlank() && selectedSymbols.isNotEmpty()) { Text("Salvar") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } })
+    if (showWordCreatorInRoutine) WordCreatorDialog(onDismiss = { showWordCreatorInRoutine = false }, onWordCreated = { selectedSymbols = selectedSymbols + it; showWordCreatorInRoutine = false }, onSearch = onSearch, searchResults = searchResults, isSearching = isSearching)
+}
+
+@Composable
+private fun WordCreatorDialog(onDismiss: () -> Unit, onWordCreated: (SymbolUiModel) -> Unit, onSearch: (String) -> Unit, searchResults: List<SymbolUiModel>, isSearching: Boolean) {
+    var label by remember { mutableStateOf("") }
+    var talk by remember { mutableStateOf("") }
+    var selectedImg by remember { mutableStateOf<SymbolUiModel?>(null) }
+    var query by remember { mutableStateOf("") }
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Nova Palavra", fontWeight = FontWeight.Bold) }, text = {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(value = label, onValueChange = { label = it; if(talk.isEmpty()) talk = it }, label = { Text("Nome") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = talk, onValueChange = { talk = it }, label = { Text("Voz") }, modifier = Modifier.fillMaxWidth())
+            Text("Imagem:", style = MaterialTheme.typography.labelMedium)
+            OutlinedTextField(value = query, onValueChange = { query = it; onSearch(it) }, placeholder = { Text("Pesquisar...") }, modifier = Modifier.fillMaxWidth(), trailingIcon = { if (isSearching) CircularProgressIndicator(modifier = Modifier.size(20.dp)) })
+            if (selectedImg != null) { Box(modifier = Modifier.size(60.dp).align(Alignment.CenterHorizontally)) { SymbolCard(symbol = selectedImg!!, isSmall = true, onClick = {}) } }
+            if (searchResults.isNotEmpty()) {
+                LazyRow(modifier = Modifier.height(80.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(searchResults, key = { it.id }) { s ->
+                        Box(modifier = Modifier.size(70.dp)) { SymbolCard(symbol = s, isSmall = true, onClick = { selectedImg = s }) }
+                    }
+                }
+            }
+        }
+    }, confirmButton = { Button(onClick = { val finalWord = selectedImg?.copy(id = "custom_${System.currentTimeMillis()}", label = label, spokenText = talk, isCustom = true); if (finalWord != null) onWordCreated(finalWord) }, enabled = label.isNotBlank() && selectedImg != null) { Text("Criar") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } })
+}
+
+@Composable
+private fun FavoritosTab(favorites: List<FavoritePhrase>, onSymbolClick: (SymbolUiModel) -> Unit) {
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        items(favorites, key = { it.id }) { fav ->
+            Surface(onClick = { onSymbolClick(SymbolUiModel(id = fav.id, label = fav.text, spokenText = fav.text)) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = ColorTokens.PrimaryContainer) {
+                Row(modifier = Modifier.padding(16.dp)) {
+                    Icon(Icons.Default.AutoAwesome, null, tint = ColorTokens.Primary)
+                    Text(fav.text, modifier = Modifier.padding(start = 12.dp), fontWeight = FontWeight.Bold)
+                }
+            }
         }
     }
 }

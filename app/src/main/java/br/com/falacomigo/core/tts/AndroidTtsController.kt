@@ -67,19 +67,10 @@ class AndroidTtsController(private val context: Context) : TtsController {
     }
 
     override fun speak(text: String) {
-        Log.d("TTS", "speak() called with: $text, initialized: $isInitialized")
-        
-        if (text.isBlank()) {
-            Log.w("TTS", "Text is blank, skipping")
-            return
-        }
+        if (text.isBlank()) return
         
         if (!isInitialized) {
-            Log.w("TTS", "TTS not initialized yet, queuing initialization")
-            // Retry after delay
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                speak(text)
-            }, 500)
+            Log.w("TTS", "TTS not initialized yet")
             return
         }
         
@@ -88,12 +79,13 @@ class AndroidTtsController(private val context: Context) : TtsController {
                 engine.setSpeechRate(speechRate)
                 engine.setPitch(pitch)
                 
-                val result = engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, text.hashCode().toString())
-                Log.d("TTS", "speak() result: $result")
+                // Usamos QUEUE_FLUSH para interromper o anterior e falar o novo imediatamente
+                // Adicionamos um ID único baseado no tempo para garantir que os callbacks de progresso funcionem
+                val utteranceId = "${text.hashCode()}_${System.currentTimeMillis()}"
+                engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
             }
         } catch (e: Exception) {
-            Log.e("TTS", "speak() exception: ${e.message}")
-            e.printStackTrace()
+            Log.e("TTS", "speak error: ${e.message}")
         }
     }
 

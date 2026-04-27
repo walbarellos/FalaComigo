@@ -9,6 +9,7 @@ data class SymbolUiModel(
     val category: String = "general",
     val isEmergency: Boolean = false,
     val isCustom: Boolean = false,
+    val lastUsedAt: Long? = null,
     val accessibilityLabel: String = ""
 ) {
     init {

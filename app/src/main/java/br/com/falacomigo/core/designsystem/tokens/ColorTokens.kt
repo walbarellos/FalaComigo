@@ -39,7 +39,8 @@ object ColorTokens {
     val CardBlue = Color(0xFFE5F4FF)
     val CardPurple = Color(0xFFF0EAFB)
     val CardPeach = Color(0xFFFFE9D9)
-    val CardPink = Color(0xFFFFE4E8)
+    val CardPink = Color(0xFFFCE7F3)
+    val CardOrange = Color(0xFFFFEDD5) // Laranja suave para numerais
     val CardGray = Color(0xFFF3F4F6)
 
     // Map category to card color
@@ -52,10 +53,14 @@ object ColorTokens {
             "emergencia" -> CardPink
             "sensorial" -> CardPeach
             "social" -> CardBlue
-            "acoes" -> Color(0xFF607D8B) // Blue Gray Profissional
-            "atividades" -> Color(0xFF8D6E63) // Brown Suave
-            "lugares" -> Color(0xFF78909C) // Teal Gray
-            "rotina" -> Color(0xFF5C6BC0) // Indigo Soft
+            "numeral" -> CardOrange
+            "alimentacao" -> Color(0xFFFEF3C7) // Amarelo Mel
+            "brincar" -> Color(0xFFE0E7FF) // Indigo suave
+            "lugares" -> Color(0xFFF3E8FF) // Roxo claro
+            "acoes" -> Color(0xFFDCFCE7) // Verde claro
+            "familia" -> Color(0xFFE2E8F0) // Slate suave
+            "higiene" -> Color(0xFFCCFBF1) // Ciano água
+            "clima" -> Color(0xFFFEF9C3) // Amarelo sol claro
             else -> CardGray
         }
     }

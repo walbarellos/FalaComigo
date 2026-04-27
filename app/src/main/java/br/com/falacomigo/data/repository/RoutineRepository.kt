@@ -22,10 +22,6 @@ class RoutineRepository @Inject constructor(
         return routineDao.getRoutineById(id)?.toUiModel()
     }
 
-    suspend fun getDefaultRoutine(): RoutineUiModel? {
-        return routineDao.getRoutineById("principal")?.toUiModel()
-    }
-
     suspend fun saveRoutine(routine: RoutineUiModel) {
         routineDao.insertRoutine(routine.toEntity())
     }
@@ -42,7 +38,9 @@ class RoutineRepository @Inject constructor(
         return RoutineUiModel(
             id = id,
             title = name,
-            subtitle = "",
+            subtitle = "${symbolsJson.split(",").filter { it.isNotBlank() }.size} itens",
+            spokenText = spokenText, // AGORA CARREGA DO BANCO
+            symbols = symbolsJson.split(",").filter { it.isNotBlank() },
             iconName = icon,
             boardId = id,
             order = displayOrder
@@ -54,6 +52,8 @@ class RoutineRepository @Inject constructor(
             id = id,
             name = title,
             icon = iconName,
+            spokenText = spokenText, // AGORA SALVA NO BANCO
+            symbolsJson = symbols.joinToString(","),
             displayOrder = order
         )
     }

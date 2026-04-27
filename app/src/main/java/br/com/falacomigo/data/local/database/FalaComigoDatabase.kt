@@ -17,21 +17,26 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+import br.com.falacomigo.data.local.dao.CachedPictogramDao
+import br.com.falacomigo.data.local.entities.CachedPictogram
+
 @Database(
     entities = [
         SymbolEntity::class,
         BoardEntity::class,
         BoardSymbolEntity::class,
         RoutineEntity::class,
-        RoutineBoardEntity::class
+        RoutineBoardEntity::class,
+        CachedPictogram::class
     ],
-    version = 1,
+    version = 30,
     exportSchema = true
 )
 abstract class FalaComigoDatabase : RoomDatabase() {
     abstract fun symbolDao(): SymbolDao
     abstract fun boardDao(): BoardDao
     abstract fun routineDao(): RoutineDao
+    abstract fun cachedPictogramDao(): CachedPictogramDao
 
     companion object {
         const val DATABASE_NAME = "fala_comigo_db"

@@ -1,6 +1,7 @@
 package br.com.falacomigo.data.repository
 
 import br.com.falacomigo.core.model.SymbolUiModel
+import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.data.local.dao.SymbolDao
 import br.com.falacomigo.data.local.entities.SymbolEntity
 import kotlinx.coroutines.flow.Flow
@@ -12,30 +13,31 @@ import javax.inject.Singleton
 class SymbolRepository @Inject constructor(
     private val symbolDao: SymbolDao
 ) {
-    fun getAllSymbols(): Flow<List<SymbolUiModel>> {
-        return symbolDao.getAllSymbols().map { entities ->
-            entities.map { it.toUiModel() }
-        }
+    fun getAllSymbols(): Flow<List<SymbolUiModel>> =
+        symbolDao.getAllSymbols().map { entities -> entities.map { it.toUiModel() } }
+
+    suspend fun getAllSymbolsOnce(): List<SymbolUiModel> =
+        symbolDao.getAllSymbolsOnce().map { it.toUiModel() }
+
+    fun getRecentlyUsed(): Flow<List<SymbolUiModel>> =
+        symbolDao.getRecentlyUsed().map { entities -> entities.filter { it.lastUsedAt > 0 }.map { it.toUiModel() } }
+
+    suspend fun updateUsage(id: String) {
+        symbolDao.updateUsage(id, System.currentTimeMillis())
     }
 
-    fun getCustomSymbols(): Flow<List<SymbolUiModel>> {
-        return symbolDao.getCustomSymbols().map { entities ->
-            entities.map { it.toUiModel() }
-        }
-    }
+    fun searchSymbols(query: String): Flow<List<SymbolUiModel>> =
+        symbolDao.searchSymbols(query).map { entities -> entities.map { it.toUiModel() } }
 
-    fun searchSymbols(query: String): Flow<List<SymbolUiModel>> {
-        return symbolDao.searchSymbols(query).map { entities ->
-            entities.map { it.toUiModel() }
-        }
-    }
+    fun getSymbolsByIds(ids: Set<String>): Flow<List<SymbolUiModel>> =
+        symbolDao.getSymbolsByIds(ids.toList()).map { entities -> entities.map { it.toUiModel() } }
 
-    suspend fun getSymbolById(id: String): SymbolUiModel? {
-        return symbolDao.getSymbolById(id)?.toUiModel()
-    }
+    suspend fun getSymbolById(id: String): SymbolUiModel? =
+        symbolDao.getSymbolById(id)?.toUiModel() ?: SeedSymbols.findById(id)
 
     suspend fun saveSymbol(symbol: SymbolUiModel) {
-        symbolDao.insertSymbol(symbol.toEntity())
+        val entity = symbol.toEntity().copy(lastUsedAt = System.currentTimeMillis())
+        symbolDao.insertSymbol(entity)
     }
 
     suspend fun saveSymbols(symbols: List<SymbolUiModel>) {
@@ -46,30 +48,15 @@ class SymbolRepository @Inject constructor(
         symbolDao.deleteSymbol(id)
     }
 
-    suspend fun getSymbolCount(): Int {
-        return symbolDao.getSymbolCount()
-    }
+    suspend fun getSymbolCount(): Int = symbolDao.getSymbolCount()
 
-    private fun SymbolEntity.toUiModel(): SymbolUiModel {
-        return SymbolUiModel(
-            id = id,
-            label = labelPt,
-            spokenText = spokenText,
-            imagePath = imagePath,
-            category = category,
-            isCustom = isCustom,
-            accessibilityLabel = "$labelPt, símbolo"
-        )
-    }
+    private fun SymbolEntity.toUiModel() = SymbolUiModel(
+        id = id, label = labelPt, spokenText = spokenText, imagePath = imagePath,
+        imageUrl = imageUrl, category = category, isCustom = isCustom, lastUsedAt = lastUsedAt
+    )
 
-    private fun SymbolUiModel.toEntity(): SymbolEntity {
-        return SymbolEntity(
-            id = id,
-            labelPt = label,
-            spokenText = spokenText,
-            imagePath = imagePath,
-            category = category,
-            isCustom = isCustom
-        )
-    }
+    private fun SymbolUiModel.toEntity() = SymbolEntity(
+        id = id, labelPt = label, spokenText = spokenText, imagePath = imagePath,
+        imageUrl = imageUrl, category = category, isCustom = isCustom, lastUsedAt = lastUsedAt ?: 0L
+    )
 }

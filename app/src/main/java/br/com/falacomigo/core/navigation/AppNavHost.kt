@@ -1,6 +1,8 @@
 package br.com.falacomigo.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +15,7 @@ import br.com.falacomigo.feature.communication.EmergencyBoardScreen
 import br.com.falacomigo.feature.diagnostics.OfflineReadinessScreen
 import br.com.falacomigo.feature.diagnostics.TtsHealthScreen
 import br.com.falacomigo.feature.editor.BoardEditorScreen
+import br.com.falacomigo.feature.editor.BoardEditorViewModel
 import br.com.falacomigo.feature.editor.MoveSymbolScreen
 import br.com.falacomigo.feature.editor.PinGateScreen
 import br.com.falacomigo.feature.editor.SymbolPickerScreen
@@ -22,7 +25,6 @@ import br.com.falacomigo.feature.settings.AboutLicenseScreen
 import br.com.falacomigo.feature.settings.AccessibilitySettingsScreen
 import br.com.falacomigo.feature.settings.SettingsScreen
 import br.com.falacomigo.feature.settings.VoiceSettingsScreen
-import br.com.falacomigo.feature.settings.VoiceSettingsViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController = rememberNavController()) {
@@ -59,7 +61,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onNavigateToAccessibility = { navController.navigate(AppRoutes.AccessibilitySettings.route) },
                 onNavigateToVoice = { navController.navigate(AppRoutes.VoiceSettings.route) },
                 onNavigateToAbout = { navController.navigate(AppRoutes.AboutLicense.route) },
-                onNavigateToOffline = { navController.navigate(AppRoutes.OfflineReadiness.route) }
+                onNavigateToOffline = { navController.navigate(AppRoutes.OfflineReadiness.route) },
+                onNavigateToEditor = { navController.navigate(AppRoutes.EditorGate.route) }
             )
         }
 
@@ -124,10 +127,24 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             arguments = listOf(navArgument("boardId") { type = NavType.StringType })
         ) { backStackEntry ->
             val boardId = backStackEntry.arguments?.getString("boardId") ?: return@composable
+            
+            // Usamos o backStackEntry anterior para obter o mesmo ViewModel da prancha em edição
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(AppRoutes.BoardEditor.route)
+            }
+            val boardEditorViewModel: BoardEditorViewModel = hiltViewModel(parentEntry)
+
             SymbolPickerScreen(
                 boardId = boardId,
                 onNavigateBack = { navController.popBackStack() },
-                onSymbolSelected = { navController.popBackStack() }
+                onSymbolSelected = { symbolId ->
+                    // Busca o símbolo completo (ou apenas o ID) e adiciona à prancha
+                    boardEditorViewModel.addSymbolById(boardId, symbolId)
+                    navController.popBackStack()
+                },
+                onSymbolCreated = { newSymbol ->
+                    boardEditorViewModel.addSymbol(boardId, newSymbol)
+                }
             )
         }
 

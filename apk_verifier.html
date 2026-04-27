@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificador de Integridade — Fala Comigo</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --success: #4CAF50;
+            --error: #F44336;
+            --bg: #F5F7FA;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .drop-zone {
+            border: 3px dashed #D1D5DB;
+            padding: 40px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: #E3F2FD;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            font-weight: bold;
+        }
+        .status.success { background: #E8F5E9; color: var(--success); display: block; }
+        .status.error { background: #FFEBEE; color: var(--error); display: block; }
+        .hash-display {
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            margin-top: 10px;
+            color: #666;
+            background: #eee;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .version-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🥒 Fala Comigo</h1>
+        <p>Verificador de Autenticidade <span class="version-badge">v0.3.0</span></p>
+        
+        <div id="dropZone" class="drop-zone">
+            Arraste seu arquivo <b>.apk</b> aqui ou clique para selecionar
+            <input type="file" id="fileInput" hidden accept=".apk">
+        </div>
+
+        <div id="statusBox" class="status"></div>
+        <div id="hashBox" class="hash-display" style="display:none"></div>
+
+        <p style="font-size: 0.8rem; color: #888; margin-top: 20px;">
+            A verificação é feita localmente no seu navegador.<br>
+            Nenhum dado é enviado para a internet.
+        </p>
+    </div>
+
+    <script>
+        // O "Selo da Verdade" gerado na build
+        const OFFICIAL_SHA256 = "29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb";
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const statusBox = document.getElementById('statusBox');
+        const hashBox = document.getElementById('hashBox');
+
+        dropZone.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "#2196F3"; };
+        dropZone.ondragleave = () => dropZone.style.borderColor = "#D1D5DB";
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            handleFile(e.dataTransfer.files[0]);
+        };
+
+        async function handleFile(file) {
+            if (!file) return;
+            
+            statusBox.className = 'status';
+            statusBox.innerHTML = '⚙️ Calculando impressão digital...';
+            statusBox.style.display = 'block';
+            hashBox.style.display = 'none';
+
+            const arrayBuffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            hashBox.innerText = "Hash: " + hashHex;
+            hashBox.style.display = 'block';
+
+            if (hashHex === OFFICIAL_SHA256) {
+                statusBox.className = 'status success';
+                statusBox.innerHTML = '✅ AUTÊNTICO: Este arquivo é oficial e seguro!';
+            } else {
+                statusBox.className = 'status error';
+                statusBox.innerHTML = '❌ ALERTA: Este arquivo foi alterado ou está corrompido!';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -24,6 +24,7 @@ fun SettingsScreen(
     onNavigateToVoice: () -> Unit,
     onNavigateToAbout: () -> Unit,
     onNavigateToOffline: () -> Unit,
+    onNavigateToEditor: () -> Unit,
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -67,6 +68,21 @@ fun SettingsScreen(
                 title = "Voz e Fala",
                 description = "Configure a velocidade da voz",
                 onClick = onNavigateToVoice
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = ColorTokens.Outline.copy(alpha = 0.5f))
+
+            Text(
+                "Administração",
+                style = MaterialTheme.typography.labelLarge,
+                color = ColorTokens.Primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            SettingsMenuItem(
+                title = "Entrar no Editor",
+                description = "Editar pranchas, símbolos e trocar imagens",
+                onClick = onNavigateToEditor
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = ColorTokens.Outline.copy(alpha = 0.5f))
