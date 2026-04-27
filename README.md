@@ -6,8 +6,7 @@
 [![Último Commit](https://img.shields.io/github/last-commit/walbarellos/FalaComigo/master?style=flat-square)](https://github.com/walbarellos/FalaComigo/commits/master)
 [![Issues Abertas](https://img.shields.io/github/issues/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/issues)
 [![Stars](https://img.shields.io/github/stars/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/stargazers)
-[![Licença](https://img.shields.io/github/license/walbarellos/FalaComigo?style=flat-square)](LICENSE)
-
+[![Licença: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue?style=flat-square)](LICENSE)
 ---
 
 [![Android](https://img.shields.io/badge/Android-7.0%2B-green?style=for-the-badge&logo=android)](https://developer.android.com/studio)
