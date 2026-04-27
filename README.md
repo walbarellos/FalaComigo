@@ -3,7 +3,7 @@
 [![Fala Comigo](https://img.shields.io/badge/Fala-Comigo-007AFF?style=for-the-badge&logo=speech)](https://github.com/walbarellos/FalaComigo)
 [![Versão](https://img.shields.io/github/v/release/walbarellos/FalaComigo?include_prereleases&style=flat-square)](https://github.com/walbarellos/FalaComigo/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/walbarellos/FalaComigo/total?style=flat-square)](https://github.com/walbarellos/FalaComigo/releases)
-[![Último Commit](https://img.shields.io/github/last-commit/walbarellos/FalaComigo/main?style=flat-square)](https://github.com/walbarellos/FalaComigo/commits/main)
+[![Último Commit](https://img.shields.io/github/last-commit/walbarellos/FalaComigo/master?style=flat-square)](https://github.com/walbarellos/FalaComigo/commits/master)
 [![Issues Abertas](https://img.shields.io/github/issues/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/issues)
 [![Stars](https://img.shields.io/github/stars/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/stargazers)
 [![Licença](https://img.shields.io/github/license/walbarellos/FalaComigo?style=flat-square)](LICENSE)
