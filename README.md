@@ -17,6 +17,8 @@
 
 ---
 
+<img width="921" height="588" alt="image" src="https://github.com/user-attachments/assets/a79be212-a7ae-45a1-8f89-cc0f626069a7" />
+
 Este arquivo faz parte do projeto Fala Comigo.
 
 Para informações completas sobre o projeto, visite nossa [Wiki Oficial](./docs/wiki/Home.md).
