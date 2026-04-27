@@ -52,6 +52,8 @@ O binário oficial (APK) foi analisado por 70+ motores de antivírus (como Kaspe
 
 *   [Ver Relatório de Auditoria em Tempo Real](https://www.virustotal.com/gui/file/29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb/detection)
 
+<img width="684" height="174" alt="image" src="https://github.com/user-attachments/assets/933648f5-e7fb-44db-ab39-02dd0752c3d6" />
+
 ### Selo de Autenticidade (SHA-256)
 Código SHA-256 oficial: `29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb`
 
@@ -121,7 +123,6 @@ O **Fala Comigo** é distribuído sob licença **CC BY-NC-ND 4.0**.
 | Informação | Detalhe |
 |------------|---------|
 | **Nome** | Willian Albarello |
-| **Email** | willian@falacomigo.app |
+| **Email** | willianalbarello@gmail.com |
 
 ---
-*Desenvolvido por Willian Albarello.*
