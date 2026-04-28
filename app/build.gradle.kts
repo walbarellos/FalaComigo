@@ -9,12 +9,21 @@ android {
     namespace = "br.com.falacomigo"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("release.keystore")
+            storePassword = "falacomigo2026"
+            keyAlias = "falacomigo"
+            keyPassword = "falacomigo2026"
+        }
+    }
+
     defaultConfig {
         applicationId = "br.com.falacomigo"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 5
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,6 +35,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -119,5 +129,5 @@ dependencies {
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    }

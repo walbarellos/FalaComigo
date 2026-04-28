@@ -3,6 +3,7 @@ package br.com.falacomigo.di
 import android.content.Context
 import br.com.falacomigo.core.tts.AndroidTtsController
 import br.com.falacomigo.core.tts.TtsController
+import br.com.falacomigo.data.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,8 +18,9 @@ object TtsModule {
     @Provides
     @Singleton
     fun provideTtsController(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        settingsRepository: SettingsRepository
     ): TtsController {
-        return AndroidTtsController(context)
+        return AndroidTtsController(context, settingsRepository)
     }
 }

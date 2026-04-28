@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
+import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.core.seed.SeedBoards
 import br.com.falacomigo.core.seed.SeedSymbols
@@ -272,7 +273,7 @@ fun SymbolPickerScreen(
                         id = "custom_${System.currentTimeMillis()}",
                         label = label,
                         spokenText = label,
-                        category = "custom",
+                        categoryId = "custom",
                         imageUrl = imageUrl,
                         isCustom = true
                     )

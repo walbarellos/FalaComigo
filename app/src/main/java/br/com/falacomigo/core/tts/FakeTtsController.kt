@@ -21,6 +21,8 @@ class FakeTtsController : TtsController {
         }, 1000)
     }
 
+    override fun warmUp() {}
+
     override fun stop() {
         stopped = true
     }
@@ -32,6 +34,19 @@ class FakeTtsController : TtsController {
     }
 
     override fun isAvailable(): Boolean = true
+
+    override fun getAvailableVoices(): List<TtsVoiceOption> = listOf(
+        TtsVoiceOption(
+            id = "fake-pt-br",
+            name = "Português Brasil · Fake",
+            locale = "pt-BR",
+            isNetworkRequired = false
+        )
+    )
+
+    override fun getCurrentVoiceId(): String? = "fake-pt-br"
+
+    override fun selectVoice(voiceId: String): Boolean = voiceId == "fake-pt-br"
 
     override fun setOnSpeechProgressListener(
         onStart: (String) -> Unit,

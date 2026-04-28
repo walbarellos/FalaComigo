@@ -37,10 +37,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import br.com.falacomigo.core.designsystem.components.BoardGrid
 import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
+import br.com.falacomigo.core.model.BoardLayoutMode
 import br.com.falacomigo.core.model.FavoritePhrase
 import br.com.falacomigo.core.model.RoutineUiModel
+import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
 import kotlin.math.roundToInt
 
@@ -60,7 +64,8 @@ fun CommunicationScreen(
     onNavigateToSettings: () -> Unit,
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    
     val currentBoard = state.currentBoard
     val isRoutineBoard = currentBoard.id.startsWith("routine_")
 
@@ -119,7 +124,18 @@ fun CommunicationScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (selectedTab) {
-                    CommunicationTab.INICIO -> InicioTab(currentBoard.symbols, state.speakingSymbolId, state.vibrationEnabled, isEditMode, viewModel::onSymbolClick, viewModel::moveSymbol)
+                    CommunicationTab.INICIO -> InicioTab(
+                        symbols = currentBoard.symbols, 
+                        boardId = currentBoard.id, 
+                        groupedSymbols = state.groupedSymbols,
+                        speakingId = state.speakingSymbolId, 
+                        layoutMode = state.layoutMode, 
+                        vibration = state.vibrationEnabled, 
+                        isEditMode = isEditMode, 
+                        onClick = viewModel::onSymbolClick, 
+                        onWarmUp = viewModel::warmUpTts,
+                        onMove = viewModel::moveSymbol
+                    )
                     CommunicationTab.ROTINAS -> RotinasTab(state, viewModel)
                     CommunicationTab.FAVORITOS -> FavoritosTab(state.favorites, viewModel::onSymbolClick)
                 }
@@ -130,14 +146,38 @@ fun CommunicationScreen(
 
 @Composable
 private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> Unit) {
-    val chips = listOf("comunicacao" to "Todos", "recentes" to "Recentes", "numeral" to "Números", "social" to "Social", "alimentacao" to "Comer", "atividades" to "Lazer", "necessidades" to "Preciso", "emocoes" to "Sentir")
-    Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Lista de chips é estática, memoizamos para evitar recriação de objetos
+    val chips = remember {
+        listOf(
+            "comunicacao" to "Todos", 
+            "recentes" to "Recentes", 
+            "numeral" to "Números", 
+            "social" to "Social", 
+            "alimentacao" to "Comer", 
+            "atividades" to "Lazer", 
+            "necessidades" to "Preciso", 
+            "emocoes" to "Sentir"
+        )
+    }
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         chips.forEach { (id, label) ->
+            // ✅ NASA: Otimização de Chip. O clique é memoizado.
+            val onSelect = remember(id) { { onBoardSelect(id) } }
+            
             FilterChip(
                 selected = currentBoardId == id, 
-                onClick = { onBoardSelect(id) }, 
-                label = { Text(label) },
-                leadingIcon = { if (id == "recentes") Icon(Icons.Default.History, null, modifier = Modifier.size(16.dp)) }
+                onClick = onSelect, 
+                label = { Text(label, softWrap = false) }, // Otimização de texto aqui também
+                leadingIcon = { 
+                    if (id == "recentes") Icon(Icons.Default.History, null, modifier = Modifier.size(16.dp)) 
+                }
             )
         }
     }
@@ -146,103 +186,28 @@ private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> 
 @Composable
 private fun InicioTab(
     symbols: List<SymbolUiModel>, 
+    boardId: String, 
+    groupedSymbols: Map<SymbolCategory, List<SymbolUiModel>>,
     speakingId: String?, 
+    layoutMode: BoardLayoutMode, 
     vibration: Boolean, 
     isEditMode: Boolean,
     onClick: (SymbolUiModel) -> Unit,
+    onWarmUp: () -> Unit,
     onMove: (Int, Int) -> Unit
 ) {
-    val view = LocalView.current
-    val gridState = rememberLazyGridState()
-    
-    var draggedIndex by remember { mutableStateOf<Int?>(null) }
-    var dragOffset by remember { mutableStateOf(Offset.Zero) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(isEditMode) {
-                if (!isEditMode) return@pointerInput
-                detectDragGesturesAfterLongPress(
-                    onDragStart = { offset ->
-                        val item = gridState.layoutInfo.visibleItemsInfo.find { 
-                            offset.x.roundToInt() in it.offset.x..(it.offset.x + it.size.width) &&
-                            offset.y.roundToInt() in it.offset.y..(it.offset.y + it.size.height)
-                        }
-                        item?.let {
-                            draggedIndex = it.index
-                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                        }
-                    },
-                    onDragEnd = { draggedIndex = null; dragOffset = Offset.Zero },
-                    onDragCancel = { draggedIndex = null; dragOffset = Offset.Zero },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        dragOffset += dragAmount
-                        val currentDraggedIndex = draggedIndex ?: return@detectDragGesturesAfterLongPress
-                        val layoutInfo = gridState.layoutInfo
-                        val visibleItems = layoutInfo.visibleItemsInfo
-                        val draggedItem = visibleItems.find { it.index == currentDraggedIndex } ?: return@detectDragGesturesAfterLongPress
-                        val centerX = draggedItem.offset.x + (draggedItem.size.width / 2) + dragOffset.x
-                        val centerY = draggedItem.offset.y + (draggedItem.size.height / 2) + dragOffset.y
-                        val targetItem = visibleItems.find { item ->
-                            val left = item.offset.x.toFloat()
-                            val right = left + item.size.width
-                            val top = item.offset.y.toFloat()
-                            val bottom = top + item.size.height
-                            centerX in left..right && centerY in top..bottom && item.index != currentDraggedIndex
-                        }
-                        if (targetItem != null) {
-                            onMove(currentDraggedIndex, targetItem.index)
-                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                            draggedIndex = targetItem.index
-                            dragOffset = Offset.Zero 
-                        }
-                    }
-                )
-            }
-    ) {
-        LazyVerticalGrid(
-            state = gridState,
-            columns = GridCells.Fixed(4), 
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(12.dp), 
-            horizontalArrangement = Arrangement.spacedBy(10.dp), 
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            userScrollEnabled = !isEditMode
-        ) {
-            itemsIndexed(items = symbols, key = { _, s -> s.id }) { index, symbol ->
-                val isSpeaking by remember(speakingId) { derivedStateOf { speakingId == symbol.id } }
-                val isBeingDragged = draggedIndex == index
-
-                Box(
-                    modifier = Modifier
-                        .zIndex(if (isBeingDragged) 10f else 0f)
-                        .graphicsLayer {
-                            if (isBeingDragged) {
-                                translationX = dragOffset.x
-                                translationY = dragOffset.y
-                                scaleX = 1.15f
-                                scaleY = 1.15f
-                                shadowElevation = 30f
-                                alpha = 0.9f
-                            } else {
-                                translationX = 0f
-                                translationY = 0f
-                                scaleX = 1f
-                                scaleY = 1f
-                                alpha = if (isEditMode) 0.6f else 1f
-                            }
-                        }
-                ) {
-                    SymbolCard(symbol = symbol, isSpeaking = isSpeaking, vibrationEnabled = vibration, onClick = { if (!isEditMode) onClick(symbol) })
-                    if (isEditMode) {
-                        Icon(Icons.Default.DragHandle, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(14.dp))
-                    }
-                }
-            }
-        }
-    }
+    BoardGrid(
+        symbols = symbols,
+        boardId = boardId,
+        groupedSymbols = groupedSymbols,
+        isEditMode = isEditMode,
+        layoutMode = layoutMode, 
+        speakingSymbolId = speakingId,
+        vibrationEnabled = vibration,
+        onSymbolClick = onClick,
+        onWarmUp = onWarmUp,
+        onMove = onMove
+    )
 }
 
 @Composable

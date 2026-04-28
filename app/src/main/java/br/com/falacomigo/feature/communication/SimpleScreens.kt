@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
@@ -27,7 +28,7 @@ fun EmergencyBoardScreen(
     onNavigateBack: () -> Unit,
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val urgentBoard = SeedBoards.boards.find { it.isEmergency } ?: SeedBoards.findById("urgente")!!
 
     Scaffold(
@@ -52,17 +53,8 @@ fun EmergencyBoardScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(urgentBoard.symbols) { symbol ->
-                val context = androidx.compose.ui.platform.LocalContext.current
-                val imageResId = androidx.compose.runtime.remember(symbol.id) {
-                    context.resources.getIdentifier(
-                        symbol.id.lowercase(),
-                        "drawable",
-                        context.packageName
-                    )
-                }
                 SymbolCard(
                     symbol = symbol,
-                    imageResId = imageResId,
                     vibrationEnabled = state.vibrationEnabled,
                     isSpeaking = state.speakingSymbolId == symbol.id,
                     onClick = { viewModel.onSymbolClick(symbol) }

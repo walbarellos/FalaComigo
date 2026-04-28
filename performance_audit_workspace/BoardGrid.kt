@@ -32,7 +32,6 @@ import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
 import br.com.falacomigo.core.model.BoardLayoutMode
 import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
-import kotlinx.coroutines.flow.*
 
 /**
  * Grade de Símbolos Universal.

@@ -1,9 +1,12 @@
 package br.com.falacomigo.data.repository
 
+import android.content.Context
+import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.data.local.dao.SymbolDao
 import br.com.falacomigo.data.local.entities.SymbolEntity
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -11,8 +14,19 @@ import javax.inject.Singleton
 
 @Singleton
 class SymbolRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val symbolDao: SymbolDao
 ) {
+    // Cache de IDs para evitar lookups repetidos
+    private val idCache = mutableMapOf<String, Int>()
+
+    private fun resolveResId(path: String?): Int {
+        if (path.isNullOrEmpty()) return 0
+        return idCache.getOrPut(path) {
+            context.resources.getIdentifier(path, "drawable", context.packageName)
+        }
+    }
+
     fun getAllSymbols(): Flow<List<SymbolUiModel>> =
         symbolDao.getAllSymbols().map { entities -> entities.map { it.toUiModel() } }
 
@@ -52,11 +66,14 @@ class SymbolRepository @Inject constructor(
 
     private fun SymbolEntity.toUiModel() = SymbolUiModel(
         id = id, label = labelPt, spokenText = spokenText, imagePath = imagePath,
-        imageUrl = imageUrl, category = category, isCustom = isCustom, lastUsedAt = lastUsedAt
+        imageUrl = imageUrl, categoryId = category,
+        isCustom = isCustom, lastUsedAt = lastUsedAt,
+        imageResId = resolveResId(imagePath)
     )
 
     private fun SymbolUiModel.toEntity() = SymbolEntity(
         id = id, labelPt = label, spokenText = spokenText, imagePath = imagePath,
-        imageUrl = imageUrl, category = category, isCustom = isCustom, lastUsedAt = lastUsedAt ?: 0L
+        imageUrl = imageUrl, category = categoryId,
+        isCustom = isCustom, lastUsedAt = lastUsedAt ?: 0L
     )
 }

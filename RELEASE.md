@@ -4,6 +4,50 @@ Este documento registra a evolução técnica e funcional do projeto, detalhando
 
 ---
 
+## [v0.4.0] — 28 de Abril de 2026 (The Apex Engine)
+A release "Apex". Um salto monumental na Engenharia de Software do app, transformando-o de uma ferramenta utilitária em uma **Prótese Sensorial** operando a 120 FPS.
+
+### 🌟 Inovações de Interface (Phenotype)
+- **Múltiplos Modos de Visualização**: Três layouts arquitetados para diferentes cargas cognitivas (via Configurações):
+  - **Grade (Clássica):** O layout padrão, agora com "Magnetic Snapping" para alinhamento perfeito.
+  - **Foco (Pager):** Concentração absoluta em um símbolo por vez, com efeito *Parallax* (2.5D) e *Visual Peeking* (sombras dos símbolos vizinhos).
+  - **MMO (Category Stream):** Visão de alta densidade estilo "Netflix", permitindo explorar múltiplas categorias simultaneamente via scroll horizontal independente.
+- **Orquestração Háptica (Haptics)**: O dispositivo agora vibra sutilmente ("clock tick") em sincronia magnética com o scroll da interface, permitindo uso sem olhar para a tela.
+- **Áudio Preditivo (Warm-up)**: O motor de voz agora "acorda" o hardware de som do dispositivo frações de segundo *antes* do usuário clicar, eliminando o delay da primeira fala.
+
+### ⚙️ Engenharia de Elite (Substrate)
+- **GPU Direct Drawing (Atrito Zero)**: Os Cards de Símbolo foram achatados (Flat Hierarchy). Removemos 100% dos nós filhos de Layout (`Text`, `Image`). Todo o conteúdo agora é processado diretamente no Canvas da GPU (`drawWithCache`), permitindo scroll fluido de 120 FPS mesmo em aparelhos mais antigos.
+- **Cérebro Determinístico (MVI)**: Toda a lógica do aplicativo foi refatorada para um padrão Reducer puro. Cliques e scrolls geram Intents que mutam o estado de forma atômica.
+- **Isolamento de Cache de Imagens (Coil)**: As imagens agora possuem um preloader inteligente em um pool de threads de ultra-baixa prioridade. Símbolos são mantidos na RAM e no Disco (cache expandido para 512MB), garantindo "Cache Hit" imediato em qualquer transição de tela.
+- **Categorias Fortemente Tipadas (Type-Safety)**: Fim do uso de Strings para lógicas de negócio. Adoção de `Value Objects` (`SymbolCategory`) com complexidade de tempo de renderização O(1).
+- **Auto-Assinatura Nível Produção**: O app agora compila nativamente APKs assinados e blindados diretamente no fluxo de Build.
+
+### 📦 Artefatos v0.4.0
+- **APK Assinado (Produção)**: `FalaComigo-v0.4.0-release.apk`
+- **SHA-256 Checksum**: `84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a`
+
+---
+
+## [v0.3.1] — 27 de Abril de 2026 (Refinamento de Voz)
+A release "Voz com Alma". Foco em humanizar a saída de áudio e garantir que o app fale mesmo em situações adversas.
+
+### Novidades (Features)
+- **Granularidade Vocal**: Novos seletores de Tom (Pitch) e Velocidade com presets amigáveis (Lento, Normal, Rápido).
+- **Seletor de Vozes**: Agora é possível escolher entre diferentes "personagens" de voz pt-BR instalados no Android.
+- **Filtro Offline**: Opção para usar apenas vozes que não dependem de internet, garantindo autonomia total.
+- **Auto-Correção Fonética**: Normalização de texto que garante entonação correta em frases essenciais (ex: "Quero água.").
+
+### Engenharia (Substrate)
+- **Motor TTS Reativo**: Listener de progresso que permite sincronizar animações visuais com a fala (isSpeaking).
+- **Gestão de Cache de Configurações**: Persistência imediata de preferências de voz via SettingsRepository.
+- **Recuperação Automática**: Sistema de "shutdown e reboot" automático do motor de voz em caso de falha silenciosa do Android.
+- **Deep Linking**: Atalhos diretos para as configurações de acessibilidade do sistema para facilitar a instalação de novos dados de voz.
+
+### Artefatos v0.3.1
+- **APK**: FalaComigo-v0.3.1-release.apk
+
+---
+
 ## [v0.3.0] — 26 de Abril de 2026 (Consolidação e Agência)
 A "Release da Maturidade". Foco total em dar agência ao usuário e blindar a performance do sistema.
 

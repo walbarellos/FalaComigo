@@ -43,27 +43,14 @@ object ColorTokens {
     val CardOrange = Color(0xFFFFEDD5) // Laranja suave para numerais
     val CardGray = Color(0xFFF3F4F6)
 
-    // Map category to card color
-    fun getCardColor(category: String): Color {
-        return when (category.lowercase()) {
-            "basic" -> CardMint
-            "emocoes" -> CardPurple
-            "necessidades" -> CardYellow
-            "saude" -> CardPink
-            "emergencia" -> CardPink
-            "sensorial" -> CardPeach
-            "social" -> CardBlue
-            "numeral" -> CardOrange
-            "alimentacao" -> Color(0xFFFEF3C7) // Amarelo Mel
-            "brincar" -> Color(0xFFE0E7FF) // Indigo suave
-            "lugares" -> Color(0xFFF3E8FF) // Roxo claro
-            "acoes" -> Color(0xFFDCFCE7) // Verde claro
-            "familia" -> Color(0xFFE2E8F0) // Slate suave
-            "higiene" -> Color(0xFFCCFBF1) // Ciano água
-            "clima" -> Color(0xFFFEF9C3) // Amarelo sol claro
-            else -> CardGray
-        }
-    }
+    // Cores específicas para categorias (NASA O(1))
+    val CategoryNumeral = CardOrange
+    val CategorySocial = CardBlue
+    val CategoryFood = Color(0xFFFEF3C7)
+    val CategoryActivities = Color(0xFFE0E7FF)
+    val CategoryNeeds = CardYellow
+    val CategoryEmotions = CardPurple
+    val CategoryEmergency = CardPink
 
     // Existing symbol colors
     val SymbolCardBackground = Surface

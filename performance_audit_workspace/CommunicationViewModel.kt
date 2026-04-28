@@ -19,7 +19,7 @@ import br.com.falacomigo.feature.communication.domain.MoveSymbolUseCase
 import br.com.falacomigo.feature.communication.domain.SaveRoutineUseCase
 import br.com.falacomigo.feature.communication.domain.SearchSymbolsUseCase
 import br.com.falacomigo.feature.communication.domain.SpeakSymbolUseCase
-import coil.imageLoader
+import coil.SingletonImageLoader
 import coil.request.ImageRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -93,10 +93,13 @@ class CommunicationViewModel @Inject constructor(
     private val _searchQuery = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
     /**
-     * Usa o singleton do FalaComigoApplication via extension property.
+     * Usa o singleton do FalaComigoApplication — mesmo loader que rememberAsyncImagePainter.
      * Preloads vão para o cache correto e os cards encontram cache hit imediato.
+     *
+     * ANTES: ImageLoader(context) criava loader isolado com cache separado.
+     * Resultado: preload era descartado, imagens carregadas duas vezes, cache hit nunca ocorria.
      */
-    private val imageLoader = context.imageLoader
+    private val imageLoader by lazy { SingletonImageLoader.get(context) }
 
     init {
         setupTtsListeners()
