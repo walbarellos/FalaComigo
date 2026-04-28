@@ -26,7 +26,7 @@
     <i>Desenho direto via GPU • Arquitetura Determinística MVI • Feedback Háptico Sincronizado</i>
   </p>
 
-  <a href="https://github.com/walbarellos/FalaComigo/releases/download/v0.4.0/FalaComigo-v0.4.0-release.apk">
+  <a href="https://github.com/walbarellos/FalaComigo/releases/download/v0.4.0-apex-engine-p2/FalaComigo-v0.4.0-release.apk">
     <img src="https://img.shields.io/badge/DOWNLOAD_LATEST_STABLE_APK-v0.4.0-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
