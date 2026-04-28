@@ -4,6 +4,29 @@ Este documento registra a evolução técnica e funcional do projeto, detalhando
 
 ---
 
+## [v0.4.1] — 28 de Abril de 2026 (Apex Engine P3 — Offline-First Stability)
+Patch de estabilidade da linha Apex, focado em eliminar pop-in visual, corrigir a tela de urgência e consolidar o pipeline persistente de imagens.
+
+### Correções críticas
+- **Tela Urgente corrigida**: a prancha de emergência agora passa pela `CommunicationViewModel` e recebe fallback seguro caso o banco antigo tenha vínculos vazios.
+- **Pipeline offline-first de imagens**: símbolos usam `thumbnailPath`/`localImagePath` persistidos em Room antes de recorrer a URL remota.
+- **Bootstrap determinístico**: a tela inicial aguarda as imagens críticas visíveis antes de soltar a prancha principal.
+- **Migração Room 30 → 31**: adiciona campos de cache local sem `fallbackToDestructiveMigration()`.
+- **Editor e picker alinhados**: superfícies auxiliares usam o mesmo resolvedor local-first do renderer principal.
+
+### Performance e estabilidade
+- Redução de warm-up/haptic desnecessário na primeira composição.
+- Cooldown para `warmUpTts()` durante rolagem rápida.
+- Testes JVM ajustados com Robolectric para validar `CommunicationViewModel`.
+- Validação manual reportada: 40s de manuseio sem erros fatais/logcat ERROR, RAM saudável e banco ativo.
+
+### Artefatos v0.4.1
+- **APK Assinado (Produção)**: `FalaComigo-v0.4.1-release.apk`
+- **Tag sugerida**: `v0.4.1-apex-engine-p3`
+- **SHA-256 Checksum**: `3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008`
+
+---
+
 ## [v0.4.0] — 28 de Abril de 2026 (The Apex Engine)
 A release "Apex". Um salto monumental na Engenharia de Software do app, transformando-o de uma ferramenta utilitária em uma **Prótese Sensorial** operando a 120 FPS.
 

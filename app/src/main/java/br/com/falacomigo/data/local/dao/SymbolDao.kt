@@ -51,4 +51,10 @@ interface SymbolDao {
 
     @Query("SELECT * FROM symbols WHERE isCustom = 1 ORDER BY labelPt ASC")
     fun getCustomSymbols(): Flow<List<SymbolEntity>>
+
+    @Query("UPDATE symbols SET localImagePath = :localImagePath, thumbnailPath = :thumbnailPath, imageDownloadStatus = 'READY', cachedAt = :cachedAt WHERE id = :symbolId")
+    suspend fun markImageReady(symbolId: String, localImagePath: String, thumbnailPath: String?, cachedAt: Long)
+
+    @Query("UPDATE symbols SET imageDownloadStatus = :status WHERE id = :symbolId")
+    suspend fun updateImageDownloadStatus(symbolId: String, status: String)
 }

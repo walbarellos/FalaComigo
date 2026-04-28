@@ -9,7 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
-import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
 import br.com.falacomigo.core.seed.SeedBoards
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +30,16 @@ fun EmergencyBoardScreen(
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val urgentBoard = SeedBoards.boards.find { it.isEmergency } ?: SeedBoards.findById("urgente")!!
+    val previousBoardId = remember { state.currentBoard.id.takeIf { it.isNotBlank() } ?: "comunicacao" }
+    LaunchedEffect(Unit) {
+        viewModel.selectBoard("urgente")
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.selectBoard(previousBoardId)
+        }
+    }
+    val urgentBoard = state.currentBoard.takeIf { it.id == "urgente" && it.symbols.isNotEmpty() }
 
     Scaffold(
         topBar = {
@@ -45,20 +55,29 @@ fun EmergencyBoardScreen(
         },
         containerColor = ColorTokens.Background
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4),
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(urgentBoard.symbols) { symbol ->
-                SymbolCard(
-                    symbol = symbol,
-                    vibrationEnabled = state.vibrationEnabled,
-                    isSpeaking = state.speakingSymbolId == symbol.id,
-                    onClick = { viewModel.onSymbolClick(symbol) }
-                )
+        if (urgentBoard == null || state.isBootstrappingImages) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = ColorTokens.Primary)
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(urgentBoard.symbols, key = { it.id }) { symbol ->
+                    SymbolCard(
+                        symbol = symbol,
+                        vibrationEnabled = state.vibrationEnabled,
+                        isSpeaking = state.speakingSymbolId == symbol.id,
+                        onClick = { viewModel.onSymbolClick(symbol) }
+                    )
+                }
             }
         }
     }

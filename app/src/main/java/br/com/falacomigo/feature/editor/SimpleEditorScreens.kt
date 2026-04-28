@@ -32,12 +32,10 @@ import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
 import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
-import br.com.falacomigo.core.seed.SeedBoards
+import br.com.falacomigo.core.model.resolveImageModel
 import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.data.remote.ArasaacPictogram
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +159,7 @@ fun EditorSymbolCard(
             modifier = Modifier.padding(8.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            val model = if (!symbol.imageUrl.isNullOrEmpty()) symbol.imageUrl else symbol.imagePath
+            val model = symbol.resolveImageModel(LocalContext.current)
             
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 if (model != null) {
@@ -197,7 +195,8 @@ fun SymbolPickerScreen(
     onSymbolCreated: (SymbolUiModel) -> Unit = {},
     viewModel: br.com.falacomigo.feature.communication.CommunicationViewModel = hiltViewModel()
 ) {
-    val availableSymbols = SeedSymbols.symbols
+    val communicationState by viewModel.state.collectAsState()
+    val availableSymbols = communicationState.catalogSymbols.ifEmpty { SeedSymbols.symbols }
     var showSearch by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -243,7 +242,7 @@ fun SymbolPickerScreen(
                 ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(8.dp)) {
-                            val model = if (!symbol.imageUrl.isNullOrEmpty()) symbol.imageUrl else symbol.imagePath
+                            val model = symbol.resolveImageModel(LocalContext.current)
                             if (model != null) {
                                 AsyncImage(
                                     model = model,
@@ -448,7 +447,7 @@ fun SlotEditorScreen(
     
     var label by remember(symbolState) { mutableStateOf(symbolState?.label ?: "") }
     var spokenText by remember(symbolState) { mutableStateOf(symbolState?.spokenText ?: "") }
-    var imageUrl by remember(symbolState) { mutableStateOf(symbolState?.imageUrl) }
+    var selectedImageUrl by remember(symbolState) { mutableStateOf<String?>(null) }
 
     LaunchedEffect(symbolId) {
         viewModel.loadSymbol(symbolId)
@@ -467,10 +466,14 @@ fun SlotEditorScreen(
                     Button(
                         onClick = {
                             symbolState?.let {
+                                val imageChanged = selectedImageUrl != null
                                 viewModel.updateSymbol(it.copy(
                                     label = label,
                                     spokenText = spokenText,
-                                    imageUrl = imageUrl
+                                    imageUrl = selectedImageUrl ?: it.imageUrl,
+                                    localImagePath = if (imageChanged) null else it.localImagePath,
+                                    thumbnailPath = if (imageChanged) null else it.thumbnailPath,
+                                    imageDownloadStatus = if (imageChanged) "PENDING" else it.imageDownloadStatus
                                 ))
                                 onNavigateBack()
                             }
@@ -503,7 +506,7 @@ fun SlotEditorScreen(
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    val model = if (!imageUrl.isNullOrEmpty()) imageUrl else symbol.imagePath
+                    val model = selectedImageUrl ?: symbol.resolveImageModel(LocalContext.current)
                     if (model != null) {
                         AsyncImage(
                             model = model,
@@ -557,7 +560,7 @@ fun SlotEditorScreen(
             if (showSearch) {
                 PictogramSearchBottomSheet(
                     onConfirm = { _, newUrl ->
-                        imageUrl = newUrl
+                        selectedImageUrl = newUrl
                         showSearch = false
                     },
                     onDismiss = { showSearch = false },
@@ -631,7 +634,7 @@ fun MoveSymbolScreen(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val model = if (!symbol.imageUrl.isNullOrEmpty()) symbol.imageUrl else symbol.imagePath
+                            val model = symbol.resolveImageModel(LocalContext.current)
                             AsyncImage(
                                 model = model,
                                 contentDescription = null,

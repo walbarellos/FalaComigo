@@ -69,6 +69,34 @@ fun CommunicationScreen(
     val currentBoard = state.currentBoard
     val isRoutineBoard = currentBoard.id.startsWith("routine_")
 
+    if (state.isBootstrappingImages && currentBoard.symbols.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator(color = ColorTokens.Primary)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Preparando símbolos…", fontWeight = FontWeight.Bold)
+                if (state.totalCriticalImages > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { state.bootstrapProgress },
+                        modifier = Modifier.width(220.dp),
+                        color = ColorTokens.Primary,
+                        trackColor = ColorTokens.SurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "${state.readyImageCount} / ${state.totalCriticalImages}",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+        return
+    }
+
     var selectedTab by remember { mutableStateOf(CommunicationTab.INICIO) }
     var isEditMode by remember { mutableStateOf(false) }
 

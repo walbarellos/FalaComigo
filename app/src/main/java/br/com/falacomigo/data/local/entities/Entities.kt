@@ -12,8 +12,12 @@ data class SymbolEntity(
     val spokenText: String,
     val imagePath: String? = null,
     val imageUrl: String? = null,
+    val localImagePath: String? = null,
+    val thumbnailPath: String? = null,
+    val imageDownloadStatus: String = "PENDING", // PENDING, READY, FAILED
     val category: String = "general",
     val isCustom: Boolean = false,
+    val isEmergency: Boolean = false,
     val cachedAt: Long? = null,
     val lastUsedAt: Long = 0L // Rastro de uso para o filtro Recentes
 )

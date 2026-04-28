@@ -1,7 +1,7 @@
 package br.com.falacomigo.data.seed
 
-import br.com.falacomigo.core.model.SymbolUiModel
 import android.util.Log
+import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.data.repository.ArasaacRepository
 import br.com.falacomigo.data.repository.BoardRepository
 import br.com.falacomigo.data.repository.RoutineRepository
@@ -20,21 +20,15 @@ class DatabaseSeeder @Inject constructor(
     private val arasaacRepository: ArasaacRepository
 ) {
     suspend fun seedIfEmpty() {
-        val allSymbols = symbolRepository.getAllSymbolsOnce()
-        allSymbols.filter { it.label.lowercase() in listOf("frio", "casa", "desculpe", "licença") }.forEach {
-            Log.d("FALACOMIGO_AUDIT", "Símbolo: ${it.label}, ID: ${it.id}, URL: ${it.imageUrl}, Path: ${it.imagePath}")
-        }
-
         val symbolCount = symbolRepository.getSymbolCount()
         
         if (symbolCount == 0) {
             seedSymbols()
             seedBoards()
             seedRoutines()
+            return
         }
         
-        // CORREÇÃO DEFINITIVA: IDs travados no SeedSymbols.kt agora são usados para atualizar o banco.
-        // Removemos a busca dinâmica que estava trazendo grampeadores e sorvetes.
         syncVerifiedSymbolsFromSeed()
         syncSeedBoardsSymbols()
     }
@@ -66,17 +60,20 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun syncVerifiedSymbolsFromSeed() {
-        val allSeedSymbols = SeedSymbolsData.symbols
-        val currentDbSymbols = symbolRepository.getAllSymbolsOnce()
+        val currentDbSymbols = symbolRepository.getAllSymbolsOnce().associateBy { it.id }
 
-        allSeedSymbols.forEach { seed ->
-            val inDb = currentDbSymbols.find { it.id == seed.id }
-            if (inDb != null) {
-                // Atualiza o banco com os dados do Seed (Fonte da Verdade)
-                // Isso garante que os IDs da ARASAAC e o spokenText fiquem certos
-                symbolRepository.saveSymbol(seed)
-            } else {
-                symbolRepository.saveSymbol(seed)
+        SeedSymbolsData.symbols.forEach { seed ->
+            val current = currentDbSymbols[seed.id]
+            val changed = current == null ||
+                current.label != seed.label ||
+                current.spokenText != seed.spokenText ||
+                current.imagePath != seed.imagePath ||
+                current.imageUrl != seed.imageUrl ||
+                current.categoryId != seed.categoryId ||
+                current.isEmergency != seed.isEmergency
+
+            if (changed) {
+                symbolRepository.upsertSeedSymbol(seed)
             }
         }
     }

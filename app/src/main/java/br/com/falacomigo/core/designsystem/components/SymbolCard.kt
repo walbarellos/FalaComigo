@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -30,28 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
 import br.com.falacomigo.core.model.SymbolUiModel
+import br.com.falacomigo.core.model.resolveImageModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 
 /**
  * SymbolCard — Renderização direta via GPU com correções de corretude e performance.
- *
- * Correções em relação à versão anterior:
- *
- * 1. REMOVIDO `clip = true` do graphicsLayer.
- *    Com 20+ cards visíveis, cada `clip = true` cria um offscreen buffer independente na GPU.
- *    Isso equivalia a renderizar a tela N+1 vezes por frame. O clipping visual é
- *    preservado pelo `drawRoundRect` dentro de `drawWithCache`.
- *
- * 2. CORRIGIDO texto re-measure em reciclagem de slots.
- *    `drawWithCache` só invalida por mudança de tamanho (Size). Quando o LazyGrid
- *    recicla um slot com símbolo diferente, o tamanho não muda, então `textMeasurer.measure()`
- *    dentro do drawWithCache nunca re-executava — desenhava o label antigo no símbolo novo.
- *    Solução: medição extraída para `remember(symbol.id, symbol.label, isSmall)`, que invalida
- *    corretamente ao trocar de símbolo. O drawWithCache mantém apenas dados dependentes de Size.
- *
- * 3. MANTIDO o efeito Glossy (gradiente de brilho) e Parallax — custo zero pois
- *    o gradiente é criado uma vez no drawWithCache e reutilizado em cada frame.
  */
 @Composable
 fun SymbolCard(
@@ -77,12 +62,26 @@ fun SymbolCard(
         if (luminance < 0.5f) Color.White else Color(0xFF1C1B1F)
     }
 
-    val isIcon = symbol.imageUrl.isNullOrEmpty() && symbol.imageResId == 0 && imageResId == 0
+    val requestSizePx = with(LocalDensity.current) {
+        if (isSmall) 96.dp.roundToPx() else 156.dp.roundToPx()
+    }
+
+    val resolvedModel = remember(
+        symbol.id,
+        symbol.localImagePath,
+        symbol.thumbnailPath,
+        symbol.imageUrl,
+        symbol.imagePath,
+        symbol.imageResId,
+        imageResId,
+        isSmall
+    ) {
+        symbol.resolveImageModel(context, preferThumbnail = isSmall) ?: imageResId.takeIf { it != 0 }
+    }
+
+    val isIcon = resolvedModel == null
     val vectorPainter = rememberVectorPainter(image = symbol.category.icon)
 
-    // Medição de texto extraída do drawWithCache para que invalide corretamente
-    // quando o símbolo muda (reciclagem de slots no LazyGrid).
-    // fontSize precisa ser estável; convertemos sp→px uma vez aqui.
     val textLayoutResult = remember(symbol.id, symbol.label, isSmall, textColor) {
         val fontSize = if (isSmall) 9.sp else 11.sp
         textMeasurer.measure(
@@ -93,31 +92,22 @@ fun SymbolCard(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             ),
-            // Constraints.fixedWidth depende do tamanho real do card — será aplicado
-            // em onDrawWithContent onde o tamanho está disponível.
-            // Usamos um valor generoso; o Ellipsis cuida do overflow.
             constraints = Constraints(maxWidth = Int.MAX_VALUE),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
     }
 
-    val imageRequest = remember(symbol.id, isSmall, imageResId, isIcon) {
+    val imageRequest = remember(symbol.id, resolvedModel, requestSizePx, isIcon) {
         if (isIcon) null
         else {
-            val data: Any = when {
-                !symbol.imageUrl.isNullOrEmpty() -> symbol.imageUrl!!
-                symbol.imageResId != 0 -> symbol.imageResId
-                else -> imageResId
-            }
             ImageRequest.Builder(context)
-                .data(data)
-                .size(if (isSmall) 128 else 192)
-                .precision(coil.size.Precision.EXACT)
+                .data(resolvedModel)
+                .size(requestSizePx)
+                .precision(coil.size.Precision.INEXACT)
                 .crossfade(false)
                 .allowHardware(true)
-                // Mesma chave usada pelo preloader — garantia de cache hit
-                .memoryCacheKey("symbol_${symbol.id}")
+                .memoryCacheKey("symbol_${symbol.id}_$requestSizePx")
                 .build()
         }
     }
@@ -127,18 +117,12 @@ fun SymbolCard(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.82f)
-            // graphicsLayer apenas para escala de feedback — SEM clip.
-            // clip=true criava N offscreen buffers independentes (um por card visível).
-            // O clipping visual é feito pelo drawRoundRect abaixo, sem custo extra.
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .drawWithCache {
-                // Tudo aqui depende apenas de Size — invalidação correta.
                 val cornerRadius = CornerRadius(if (isSmall) 30f else 42f)
-
-                // Gradiente criado uma vez por size change, reutilizado em todos os frames.
                 val lightGradient = Brush.verticalGradient(
                     colors = listOf(Color.White.copy(alpha = 0.12f), Color.Transparent),
                     startY = 0f,
@@ -149,22 +133,17 @@ fun SymbolCard(
                 val xPos = (size.width - imgSize) / 2f
                 val yPos = size.height * 0.12f
 
-                // Centro do texto baseado na largura real do card
                 val textX = (size.width - textLayoutResult.size.width) / 2f
                 val textY = size.height * 0.78f
 
                 onDrawWithContent {
-                    // 1. Fundo
                     drawRoundRect(color = cardColor, cornerRadius = cornerRadius)
-
-                    // 2. Glossy highlight (blend Screen = custo quase zero na GPU moderna)
                     drawRoundRect(
                         brush = lightGradient,
                         cornerRadius = cornerRadius,
                         blendMode = BlendMode.Screen,
                     )
 
-                    // 3. Imagem / ícone com parallax
                     val painter = if (isIcon) vectorPainter else bitmapPainter
                     translate(left = xPos + parallaxOffset, top = yPos) {
                         with(painter) {
@@ -175,7 +154,6 @@ fun SymbolCard(
                         }
                     }
 
-                    // 4. Label
                     drawText(
                         textLayoutResult = textLayoutResult,
                         topLeft = Offset(x = textX, y = textY),

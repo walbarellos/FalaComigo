@@ -9,6 +9,9 @@ data class SymbolUiModel(
     val spokenText: String,
     val imagePath: String? = null,
     val imageUrl: String? = null,
+    val localImagePath: String? = null,
+    val thumbnailPath: String? = null,
+    val imageDownloadStatus: String = "PENDING",
     val imageResId: Int = 0,
     val categoryId: String = "general", // Volta para String para compatibilidade com o banco
     val isEmergency: Boolean = false,

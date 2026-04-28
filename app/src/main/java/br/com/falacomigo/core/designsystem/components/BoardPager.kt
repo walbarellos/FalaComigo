@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import br.com.falacomigo.core.model.SymbolUiModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlin.math.absoluteValue
 
 /**
@@ -34,13 +36,16 @@ fun BoardPager(
     val pagerState = rememberPagerState(pageCount = { symbols.size })
     val view = LocalView.current
 
-    // ✅ NASA: Orquestração Sensorial (Haptic + Warm-up)
-    // Dispara quando o usuário para em um novo símbolo
-    LaunchedEffect(pagerState.currentPage) {
-        if (vibrationEnabled) {
-            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-        }
-        onWarmUp() // Acorda o hardware de áudio
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .drop(1)
+            .distinctUntilChanged()
+            .collect {
+                if (vibrationEnabled) {
+                    view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                }
+                onWarmUp()
+            }
     }
 
     HorizontalPager(

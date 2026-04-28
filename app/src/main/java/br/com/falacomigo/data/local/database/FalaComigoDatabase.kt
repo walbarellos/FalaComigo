@@ -2,6 +2,7 @@ package br.com.falacomigo.data.local.database
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.migration.Migration
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -29,7 +30,7 @@ import br.com.falacomigo.data.local.entities.CachedPictogram
         RoutineBoardEntity::class,
         CachedPictogram::class
     ],
-    version = 30,
+    version = 31,
     exportSchema = true
 )
 abstract class FalaComigoDatabase : RoomDatabase() {
@@ -41,12 +42,24 @@ abstract class FalaComigoDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME = "fala_comigo_db"
 
+        val MIGRATION_30_31 = object : Migration(30, 31) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE symbols ADD COLUMN localImagePath TEXT")
+                database.execSQL("ALTER TABLE symbols ADD COLUMN thumbnailPath TEXT")
+                database.execSQL(
+                    "ALTER TABLE symbols ADD COLUMN imageDownloadStatus TEXT NOT NULL DEFAULT 'PENDING'"
+                )
+                database.execSQL("ALTER TABLE symbols ADD COLUMN isEmergency INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun create(context: Context): FalaComigoDatabase {
             return Room.databaseBuilder(
                 context.applicationContext,
                 FalaComigoDatabase::class.java,
                 DATABASE_NAME
             )
+                .addMigrations(MIGRATION_30_31)
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
@@ -55,7 +68,6 @@ abstract class FalaComigoDatabase : RoomDatabase() {
                         }
                     }
                 })
-                .fallbackToDestructiveMigration()
                 .build()
         }
     }

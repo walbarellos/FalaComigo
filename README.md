@@ -1,4 +1,4 @@
-# Fala Comigo — The Apex Engine (v0.4.0)
+# Fala Comigo — The Apex Engine (v0.4.1)
 
 [![Fala Comigo](https://img.shields.io/badge/Fala-Comigo-007AFF?style=for-the-badge&logo=speech)](https://github.com/walbarellos/FalaComigo)
 [![Versão](https://img.shields.io/github/v/release/walbarellos/FalaComigo?include_prereleases&style=flat-square)](https://github.com/walbarellos/FalaComigo/releases/latest)
@@ -26,11 +26,11 @@
     <i>Desenho direto via GPU • Arquitetura Determinística MVI • Feedback Háptico Sincronizado</i>
   </p>
 
-  <a href="https://github.com/walbarellos/FalaComigo/releases/download/v0.4.0-apex-engine-p2/FalaComigo-v0.4.0-release.apk">
-    <img src="https://img.shields.io/badge/DOWNLOAD_LATEST_STABLE_APK-v0.4.0-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
+  <a href="https://github.com/walbarellos/FalaComigo/releases/download/v0.4.1-apex-engine-p3/FalaComigo-v0.4.1-release.apk">
+    <img src="https://img.shields.io/badge/DOWNLOAD_LATEST_STABLE_APK-v0.4.1-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
-  <code>SHA-256 (v0.4.0): 84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a</code>
+  <code>SHA-256 (v0.4.1): 3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008</code>
 </div>
 
 ---
@@ -44,16 +44,17 @@ Tabela de Conteúdos
 1. Badge e Status do Projeto
 2. Segurança e Integridade (Auditado)
 3. Visão Geral do Projeto
-4. Funcionalidades Principais (v0.4.0 Apex)
+4. Funcionalidades Principais (v0.4.1 Apex P3)
 5. Arquitetura e Tecnologias
 6. Instalação e Verificação
 7. Como Contribuir
 8. Roadmap e Versões Futuras
 9. Licença e Termos Legais
+10. Star History
 
 ---
 
-[![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.4.0-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
+[![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.4.1-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
 [![Security: VirusTotal Clean](https://img.shields.io/badge/Seguran%C3%A7a-Auditado-brightgreen?style=flat-square&logo=google-cloud)](https://www.virustotal.com/gui/file/84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a/detection)
 [![License: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
 [![UI Performance: 120FPS](https://img.shields.io/badge/Performance-120FPS-orange?style=flat-square)](https://github.com/walbarellos/FalaComigo)
@@ -62,15 +63,15 @@ Tabela de Conteúdos
 
 ## 2. Segurança e Integridade (Auditado)
 
-O Fala Comigo v0.4.0 foi submetido a rigorosas auditorias de segurança e integridade para garantir a proteção de instituições e usuários.
+O Fala Comigo v0.4.1 foi submetido a validações de estabilidade, integridade e uso manual para garantir uma experiência segura e previsível.
 
 ### Relatório VirusTotal (Google)
-O binário oficial (APK) v0.4.0 foi analisado por 70+ motores de antivírus e obteve 0 detecções.
+O binário oficial anterior (APK) v0.4.0 foi analisado por 70+ motores de antivírus e obteve 0 detecções. A v0.4.1 mantém a mesma linha de assinatura e adiciona correções de estabilidade.
 
 *   [Ver Relatório de Auditoria em Tempo Real](https://www.virustotal.com/gui/file/84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a/detection)
 
 ### Selo de Autenticidade (SHA-256)
-Código SHA-256 oficial da v0.4.0: `84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a`
+Código SHA-256 oficial da v0.4.1: `3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008`
 
 ---
 
@@ -84,7 +85,7 @@ O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alt
 
 ---
 
-## 4. Funcionalidades Principais (v0.4.0 Apex)
+## 4. Funcionalidades Principais (v0.4.1 Apex P3)
 
 ### Engenharia de Visualização
 *   **Apex Engine**: Sistema de renderização manual via GPU (120 FPS) que elimina o atrito de layout do Android.
@@ -93,6 +94,7 @@ O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alt
 ### Orquestração Sensorial
 *   **Haptic Sync**: Feedback tátil sincronizado com o scroll magnético.
 *   **Áudio Preditivo**: Hardware de som pré-aquecido para fala instantânea.
+*   **Offline-First P3**: imagens críticas persistidas localmente, tela de urgência corrigida e bootstrap visual determinístico.
 
 ---
 
@@ -102,30 +104,32 @@ O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alt
 |--------|------------|----------|
 | **UI** | Jetpack Compose | **GPU Direct Drawing (120 FPS)** |
 | **Lógica** | MVI Reducer | Determinismo absoluto de estado |
-| **Imagens** | Coil + Preloading | 512MB de cache persistente |
-| **Banco** | Room (v30) | Pipeline reativo de background |
+| **Imagens** | Coil + filesDir | Thumbnails e imagens persistentes local-first |
+| **Banco** | Room (v31) | Pipeline reativo com paths locais persistidos |
 
 ---
 
 ## 6. Instalação e Verificação
 
 ### 1. Baixe o APK Assinado
-Acesse as [Releases Oficiais](https://github.com/walbarellos/FalaComigo/releases) e baixe o arquivo `FalaComigo-v0.4.0-release.apk`.
+Acesse as [Releases Oficiais](https://github.com/walbarellos/FalaComigo/releases) e baixe o arquivo `FalaComigo-v0.4.1-release.apk`.
 
 ### 2. Verifique o Hash
 Execute no seu terminal para garantir a integridade:
-*   **macOS/Linux**: `sha256sum FalaComigo-v0.4.0-release.apk`
-*   **Windows**: `certutil -hashfile FalaComigo-v0.4.0-release.apk SHA256`
+*   **macOS/Linux**: `sha256sum FalaComigo-v0.4.1-release.apk`
+*   **Windows**: `certutil -hashfile FalaComigo-v0.4.1-release.apk SHA256`
 
 ---
 
 ## 8. Roadmap e Versões Futuras
 
-### Concluído (v0.4.0)
+### Concluído (v0.4.1)
 - [x] Motor de renderização Apex (120 FPS).
 - [x] Múltiplos modos de visualização (Foco/MMO).
 - [x] Orquestração háptica e áudio preditivo.
 - [x] Assinatura digital RSA nativa.
+- [x] Pipeline offline-first de imagens.
+- [x] Correção da tela Urgente e migração Room segura.
 
 ---
 
@@ -139,3 +143,13 @@ O **Fala Comigo** é distribuído sob licença **GNU General Public License v3.0
 | **Email** | willianalbarello@gmail.com |
 
 ---
+
+## 10. Star History
+
+<a href="https://www.star-history.com/?repos=walbarellos%2FFalaComigo&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=walbarellos/FalaComigo&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=walbarellos/FalaComigo&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=walbarellos/FalaComigo&type=date&legend=top-left" />
+ </picture>
+</a>

@@ -185,6 +185,7 @@ private fun CategoryRow(
     // que disparava em qualquer mudança — incluindo scroll parcial de pixel.
     LaunchedEffect(rowState) {
         snapshotFlow { rowState.firstVisibleItemIndex }
+            .drop(1)
             .distinctUntilChanged()
             .collect {
                 if (vibrationEnabled) {
@@ -251,6 +252,7 @@ private fun StandardGrid(
     // Mesmo padrão do CategoryRow: haptic apenas em item distinto, não em pixel.
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.firstVisibleItemIndex }
+            .drop(1)
             .distinctUntilChanged()
             .collect {
                 if (vibrationEnabled) {
@@ -367,8 +369,7 @@ private fun SymbolGridItem(
                 }
             },
     ) {
-        // remember keyed em symbol.id para evitar recriação da lambda em recomposições
-        val onClickStable = remember(symbol.id, isEditMode) { { onSymbolClick(symbol) } }
+        val onClickStable = remember(symbol, onSymbolClick) { { onSymbolClick(symbol) } }
         SymbolCard(
             symbol = symbol,
             isSpeaking = isSpeaking,

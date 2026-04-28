@@ -26,8 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.falacomigo.BuildConfig
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
-import br.com.falacomigo.core.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +84,7 @@ fun AboutLicenseScreen(onNavigateBack: () -> Unit) {
             )
 
             Text(
-                text = "Versão 0.2.0",
+                text = "Versão ${BuildConfig.VERSION_NAME}",
                 style = MaterialTheme.typography.bodySmall,
                 color = ColorTokens.OnSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
@@ -93,12 +93,38 @@ fun AboutLicenseScreen(onNavigateBack: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Uma ferramenta de Comunicação Aumentativa e Alternativa (CAA) projetada para dar voz a todos, através de uma interface intuitiva e humana.",
+                text = "Uma ferramenta brasileira de Comunicação Aumentativa e Alternativa (CAA), projetada para transformar símbolos em voz com fluidez, segurança offline e uma interface acessível.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = ColorTokens.PrimaryContainer.copy(alpha = 0.45f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Destaques desta versão",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = ColorTokens.Primary
+                    )
+                    Text(
+                        text = "• Imagens persistentes para uso offline\n• Abertura com símbolos críticos preparados\n• Grade, foco e stream por categorias\n• Resposta de toque e voz mais estáveis\n• Editor e tela de urgência alinhados ao mesmo pipeline visual",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ColorTokens.OnSurfaceVariant,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
