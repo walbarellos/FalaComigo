@@ -3,6 +3,7 @@ package br.com.falacomigo.feature.communication
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import br.com.falacomigo.R
 import br.com.falacomigo.core.designsystem.components.BoardGrid
 import br.com.falacomigo.core.designsystem.components.SymbolCard
 import br.com.falacomigo.core.designsystem.tokens.ColorTokens
@@ -108,14 +111,43 @@ fun CommunicationScreen(
 
     Scaffold(
         topBar = {
+            val showHomeIcon = !isEditMode &&
+                selectedTab == CommunicationTab.INICIO &&
+                currentBoard.id == "comunicacao"
             TopAppBar(
-                title = { Text(if (isEditMode) "Organizar" else if (selectedTab == CommunicationTab.ROTINAS) "Gestão de Conteúdo" else currentBoard.title, fontWeight = FontWeight.ExtraBold) },
+                title = {
+                    if (!showHomeIcon) {
+                        Text(
+                            if (isEditMode) "Organizar"
+                            else if (selectedTab == CommunicationTab.ROTINAS) "Gestão de Conteúdo"
+                            else currentBoard.title,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                },
                 navigationIcon = {
-                    if (isEditMode) {
-                        IconButton(onClick = { isEditMode = false }) { Icon(Icons.Default.Close, "Sair") }
-                    } else if (currentBoard.id != "comunicacao") {
-                        IconButton(onClick = { viewModel.selectBoard("comunicacao") }) {
-                            Icon(Icons.Default.ArrowBack, "Voltar")
+                    when {
+                        showHomeIcon -> {
+                            Box(
+                                modifier = Modifier.size(56.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.topbar_app_icon),
+                                    contentDescription = "Fala Comigo",
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
+                        }
+                        isEditMode -> {
+                            IconButton(onClick = { isEditMode = false }) { Icon(Icons.Default.Close, "Sair") }
+                        }
+                        currentBoard.id != "comunicacao" -> {
+                            IconButton(onClick = { viewModel.selectBoard("comunicacao") }) {
+                                Icon(Icons.Default.ArrowBack, "Voltar")
+                            }
                         }
                     }
                 },

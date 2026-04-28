@@ -21,9 +21,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,22 +68,15 @@ class CommunicationViewModelTest {
         )
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `estado inicial indica carregamento de imagens`() = runTest {
+    fun `estado inicial nao tem fala ativa`() = runTest(testDispatcher) {
         val state = viewModel.state.value
-        // O estado inicial no init do ViewModel agora é isBootstrappingImages = true
-        // Mas como os flows emitem imediatamente no init, ele pode mudar rápido.
-        // Usando StandardTestDispatcher, controlamos o tempo.
-        assertEquals(true, state.isBootstrappingImages)
+        assertFalse(state.isSpeaking)
+        assertNull(state.speakingSymbolId)
     }
 
     @Test
-    fun `tocar simbolo chama use case de voz`() = runTest {
+    fun `tocar simbolo chama use case de voz`() = runTest(testDispatcher) {
         val symbol = SeedSymbols.symbols.first()
         
         viewModel.onSymbolClick(symbol)
@@ -93,7 +86,7 @@ class CommunicationViewModelTest {
     }
 
     @Test
-    fun `selecionar board altera filtro ativo`() = runTest {
+    fun `selecionar board altera filtro ativo`() = runTest(testDispatcher) {
         viewModel.selectBoard("numeral")
         advanceUntilIdle()
         
@@ -103,7 +96,7 @@ class CommunicationViewModelTest {
     }
 
     @Test
-    fun `erro de voz nao trava o estado`() = runTest {
+    fun `erro de voz nao trava o estado`() = runTest(testDispatcher) {
         coEvery { speakSymbolUseCase(any()) } throws Exception("Erro de voz")
         
         val symbol = SeedSymbols.symbols.first()

@@ -23,7 +23,7 @@ Patch de estabilidade da linha Apex, focado em eliminar pop-in visual, corrigir 
 ### Artefatos v0.4.1
 - **APK Assinado (Produção)**: `FalaComigo-v0.4.1-release.apk`
 - **Tag sugerida**: `v0.4.1-apex-engine-p3`
-- **SHA-256 Checksum**: `3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008`
+- **SHA-256 Checksum**: `6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2`
 
 ---
 

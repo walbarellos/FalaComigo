@@ -30,7 +30,7 @@
     <img src="https://img.shields.io/badge/DOWNLOAD_LATEST_STABLE_APK-v0.4.1-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
-  <code>SHA-256 (v0.4.1): 3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008</code>
+  <code>SHA-256 (v0.4.1): 6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2</code>
 </div>
 
 ---
@@ -55,7 +55,7 @@ Tabela de Conteúdos
 ---
 
 [![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.4.1-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
-[![Security: VirusTotal Clean](https://img.shields.io/badge/Seguran%C3%A7a-Auditado-brightgreen?style=flat-square&logo=google-cloud)](https://www.virustotal.com/gui/file/84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a/detection)
+[![Security: VirusTotal Clean](https://img.shields.io/badge/Seguran%C3%A7a-Auditado-brightgreen?style=flat-square&logo=google-cloud)](https://www.virustotal.com/gui/file/6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2/detection)
 [![License: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
 [![UI Performance: 120FPS](https://img.shields.io/badge/Performance-120FPS-orange?style=flat-square)](https://github.com/walbarellos/FalaComigo)
 
@@ -68,10 +68,10 @@ O Fala Comigo v0.4.1 foi submetido a validações de estabilidade, integridade e
 ### Relatório VirusTotal (Google)
 O binário oficial anterior (APK) v0.4.0 foi analisado por 70+ motores de antivírus e obteve 0 detecções. A v0.4.1 mantém a mesma linha de assinatura e adiciona correções de estabilidade.
 
-*   [Ver Relatório de Auditoria em Tempo Real](https://www.virustotal.com/gui/file/84b5327b1e4d14d4e75cfd9504f4b5e216f789a60aa649fd1eb7cb87ecc5523a/detection)
+*   [Ver Relatório de Auditoria em Tempo Real](https://www.virustotal.com/gui/file/6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2/detection)
 
 ### Selo de Autenticidade (SHA-256)
-Código SHA-256 oficial da v0.4.1: `3eac8456f0defda1351ee4167b5b49c9aef7beb3700872c5abda76dd36b7c008`
+Código SHA-256 oficial da v0.4.1: `6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2`
 
 ---
 
