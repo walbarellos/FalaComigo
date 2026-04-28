@@ -36,7 +36,7 @@
 ---
 
 Este arquivo faz parte do projeto **Fala Comigo**.
-Para informações completas sobre o projeto, visite nossa [Wiki Oficial](./docs/wiki/Home.md).
+Para informações completas sobre o projeto, visite nossa [Wiki Oficial](https://github.com/walbarellos/FalaComigo/wiki).
 
 ==========================================
 Tabela de Conteúdos
