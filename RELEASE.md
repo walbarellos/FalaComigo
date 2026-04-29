@@ -4,6 +4,20 @@ Este documento registra a evolução técnica e funcional do projeto, detalhando
 
 ---
 
+## [v0.4.2] — 28 de Abril de 2026 (Strategic Convergence)
+Esta release consolida a arquitetura de tokens e limpa o substrate técnico, preparando o app para uma escalabilidade visual sem precedentes.
+
+### 🌟 Design System (Tokens)
+- **Implementação de Design Tokens**: Centralização de cores, tipografia, espaçamento e tamanhos em objetos fortemente tipados (`ColorTokens`, `TypeTokens`, etc.).
+- **Limpeza de Recursos**: Remoção de temas e strings redundantes em favor da arquitetura de tokens.
+- **Substrate Reforçado**: Otimização do `.gitignore` e limpeza de scripts de build legados.
+
+### Performance e estabilidade
+- Sincronização da lógica de comunicação com os novos padrões de design.
+- Preparação para suporte a múltiplos temas dinâmicos via tokens.
+
+---
+
 ## [v0.4.1] — 28 de Abril de 2026 (Apex Engine P3 — Offline-First Stability)
 Patch de estabilidade da linha Apex, focado em eliminar pop-in visual, corrigir a tela de urgência e consolidar o pipeline persistente de imagens.
 
