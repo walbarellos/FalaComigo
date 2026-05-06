@@ -6,7 +6,7 @@
 [![Último Commit](https://img.shields.io/github/last-commit/walbarellos/FalaComigo/master?style=flat-square)](https://github.com/walbarellos/FalaComigo/commits/master)
 [![Issues Abertas](https://img.shields.io/github/issues/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/issues)
 [![Stars](https://img.shields.io/github/stars/walbarellos/FalaComigo?style=flat-square)](https://github.com/walbarellos/FalaComigo/stargazers)
-[![Licença: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue?style=flat-square)](LICENSE)
+[![Licença: BSL 1.1](https://img.shields.io/badge/licen%C3%A7a-BSL%201.1-orange?style=flat-square)](LICENSE)
 ---
 
 [![Android](https://img.shields.io/badge/Android-7.0%2B-green?style=for-the-badge&logo=android)](https://developer.android.com/studio)
@@ -56,7 +56,7 @@ Tabela de Conteúdos
 
 [![Versão do Projeto](https://img.shields.io/badge/vers%C3%A3o-0.4.1-blue?style=flat-square&logo=semver)](https://github.com/walbarellos/FalaComigo/releases)
 [![Security: VirusTotal Clean](https://img.shields.io/badge/Seguran%C3%A7a-Auditado-brightgreen?style=flat-square&logo=google-cloud)](https://www.virustotal.com/gui/file/6af634b10354658e6ecb2b9e1199ba4babb5b343f5be56e814566910bf920fb2/detection)
-[![License: GPL v3](https://img.shields.io/badge/licen%C3%A7a-GPL%20v3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: BSL 1.1](https://img.shields.io/badge/licen%C3%A7a-BSL%201.1-orange.svg?style=flat-square)](LICENSE)
 [![UI Performance: 120FPS](https://img.shields.io/badge/Performance-120FPS-orange?style=flat-square)](https://github.com/walbarellos/FalaComigo)
 
 ---
@@ -134,7 +134,12 @@ Execute no seu terminal para garantir a integridade:
 ---
 
 ## 9. Licença e Termos Legais
-O **Fala Comigo** é distribuído sob licença **GNU General Public License v3.0 (GPLv3)**.
+O **Fala Comigo** é distribuído sob licença **Business Source License 1.1 (BSL 1.1)**.
+
+### Termos de Uso
+- **Uso não-comercial:** Gratuito e permitido para indivíduos e ONGs.
+- **Uso comercial/produção:** Requer licença comercial do Licenciante até 06/05/2030.
+- **Pós-Change Date:** A licença converterá automaticamente para **Apache 2.0**.
 
 ### Criador do Projeto
 | Informação | Detalhe |
