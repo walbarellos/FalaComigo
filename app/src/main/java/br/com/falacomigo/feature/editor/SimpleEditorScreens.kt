@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -23,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,6 +38,7 @@ import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.core.model.resolveImageModel
 import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.data.remote.ArasaacPictogram
+import br.com.falacomigo.feature.communication.CommunicationViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 
@@ -189,7 +193,6 @@ fun EditorSymbolCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SymbolPickerScreen(
-    boardId: String,
     onNavigateBack: () -> Unit,
     onSymbolSelected: (String) -> Unit,
     onSymbolCreated: (SymbolUiModel) -> Unit = {},
@@ -436,7 +439,6 @@ private fun PictogramResultCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SlotEditorScreen(
-    boardId: String,
     symbolId: String,
     onNavigateBack: () -> Unit,
     viewModel: BoardEditorViewModel = hiltViewModel(),
@@ -689,19 +691,26 @@ fun MoveSymbolScreen(
 @Composable
 fun PinGateScreen(
     onNavigateBack: () -> Unit,
-    onEditorVerified: (String) -> Unit
+    onEditorVerified: (String) -> Unit,
+    viewModel: CommunicationViewModel = hiltViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
+    var typedPin by remember { mutableStateOf("") }
+    var hasError by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Área do Cuidador") },
+                title = { Text("Área do Cuidador", fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
             )
-        }
+        },
+        containerColor = ColorTokens.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize().padding(paddingValues).padding(32.dp),
@@ -718,11 +727,48 @@ fun PinGateScreen(
                 color = ColorTokens.OnSurfaceVariant
             )
 
+            OutlinedTextField(
+                value = typedPin,
+                onValueChange = {
+                    typedPin = it.filter(Char::isDigit).take(8)
+                    hasError = false
+                },
+                label = { Text("PIN") },
+                singleLine = true,
+                isError = hasError,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = ColorTokens.Primary,
+                    focusedLabelColor = ColorTokens.Primary,
+                    cursorColor = ColorTokens.Primary
+                )
+            )
+            if (hasError) {
+                Text(
+                    "PIN incorreto.",
+                    color = ColorTokens.Error,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Button(
-                modifier = Modifier.fillMaxWidth().padding(top = 48.dp),
-                onClick = { onEditorVerified("comunicacao") },
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                onClick = {
+                    if (typedPin == state.editorPin) {
+                        onEditorVerified("comunicacao")
+                    } else {
+                        hasError = true
+                    }
+                },
+                enabled = typedPin.isNotBlank(),
                 shape = RoundedCornerShape(16.dp),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = ColorTokens.Primary)
             ) {
                 Text("Entrar no Editor", style = MaterialTheme.typography.titleMedium)
             }

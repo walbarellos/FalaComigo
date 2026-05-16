@@ -13,3 +13,14 @@ Este projeto é desenvolvido e mantido com foco em acessibilidade e performance.
 
 ---
 Para parcerias, suporte técnico ou licenciamento comercial, entre em contato via e-mail.
+# Anexo — CREDITS (Repo Antigo)
+
+**Projeto:** FalaComigo (`br.com.falacomigo`)  
+**Ciclo:** ANEXO — Repositório Antigo (Referência Técnica)  
+**Referência:** ANEXO-CREDITS  
+**Diretório:** `docs/FalaComigo-master-antigo`  
+**Status:** Documento herdado do repo antigo (não normativo)  
+**Natureza:** Anexo de referência (créditos e atribuições)  
+**Não gerar código neste documento.**
+
+---

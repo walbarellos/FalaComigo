@@ -35,7 +35,6 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         composable(AppRoutes.Communication.route) {
             CommunicationScreen(
                 onNavigateToEmergency = { navController.navigate(AppRoutes.EmergencyBoard.route) },
-                onNavigateToBoardSelector = { navController.navigate(AppRoutes.BoardSelector.route) },
                 onNavigateToSettings = { navController.navigate(AppRoutes.Settings.route) }
             )
         }
@@ -49,7 +48,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         composable(AppRoutes.BoardSelector.route) {
             BoardSelectorScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onBoardSelected = { boardId ->
+                onBoardSelected = {
                     navController.popBackStack()
                 }
             )
@@ -135,7 +134,6 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             val boardEditorViewModel: BoardEditorViewModel = hiltViewModel(parentEntry)
 
             SymbolPickerScreen(
-                boardId = boardId,
                 onNavigateBack = { navController.popBackStack() },
                 onSymbolSelected = { symbolId ->
                     // Busca o símbolo completo (ou apenas o ID) e adiciona à prancha
@@ -155,10 +153,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 navArgument("symbolId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val boardId = backStackEntry.arguments?.getString("boardId") ?: return@composable
             val symbolId = backStackEntry.arguments?.getString("symbolId") ?: return@composable
             SlotEditorScreen(
-                boardId = boardId,
                 symbolId = symbolId,
                 onNavigateBack = { navController.popBackStack() }
             )

@@ -1,120 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificador de Integridade - Fala Comigo</title>
-    <style>
-        :root {
-            --primary: #2196F3;
-            --success: #4CAF50;
-            --error: #F44336;
-            --bg: #F5F7FA;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-        }
-        .drop-zone {
-            border: 3px dashed #D1D5DB;
-            padding: 40px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 20px 0;
-        }
-        .drop-zone:hover {
-            border-color: var(--primary);
-            background: #E3F2FD;
-        }
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            display: none;
-            font-weight: bold;
-        }
-        .status.success { background: #E8F5E9; color: var(--success); display: block; }
-        .status.error { background: #FFEBEE; color: var(--error); display: block; }
-        .hash-display {
-            font-family: monospace;
-            font-size: 0.8rem;
-            word-break: break-all;
-            margin-top: 10px;
-            color: #666;
-            background: #eee;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .version-badge {
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verificador SHA-256 - FalaComigo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --brand: #6366f1;
+      --border: #dbe5f7;
+      --ok: #0f766e;
+      --bad: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(680px, calc(100vw - 32px));
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    p { margin: 0 0 18px; color: var(--muted); line-height: 1.5; }
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #f8faff;
+      color: var(--text);
+    }
+    button {
+      width: 100%;
+      margin-top: 16px;
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 16px;
+      background: var(--brand);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    output {
+      display: block;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8faff;
+      border: 1px solid var(--border);
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+    .ok { color: var(--ok); font-weight: 800; }
+    .bad { color: var(--bad); font-weight: 800; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Fala Comigo</h1>
-        <p>Verificador de Autenticidade <span class="version-badge">v0.3.0</span></p>
-        <div id="dropZone" class="drop-zone">
-            Arraste seu arquivo .apk aqui ou clique para selecionar
-            <input type="file" id="fileInput" hidden accept=".apk">
-        </div>
-        <div id="statusBox" class="status"></div>
-        <div id="hashBox" class="hash-display" style="display:none"></div>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 20px;">
-            A verificação é feita localmente no seu navegador. Nenhum dado é enviado para a internet.
-        </p>
-    </div>
-    <script>
-        const OFFICIAL_SHA256 = "29b6883deaadce7365cd0be7a329e0cea4e91db75173e454cbab6c56f197cbdb";
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const statusBox = document.getElementById('statusBox');
-        const hashBox = document.getElementById('hashBox');
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => handleFile(e.target.files[0]);
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "#2196F3"; };
-        dropZone.ondragleave = () => dropZone.style.borderColor = "#D1D5DB";
-        dropZone.ondrop = (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); };
-        async function handleFile(file) {
-            if (!file) return;
-            statusBox.className = 'status';
-            statusBox.innerHTML = 'Calculando impressao digital...';
-            statusBox.style.display = 'block';
-            hashBox.style.display = 'none';
-            const arrayBuffer = await file.arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            hashBox.innerText = "Hash: " + hashHex;
-            hashBox.style.display = 'block';
-            if (hashHex === OFFICIAL_SHA256) {
-                statusBox.className = 'status success';
-                statusBox.innerHTML = 'AUTENTICO: Este arquivo e oficial e seguro!';
-            } else {
-                statusBox.className = 'status error';
-                statusBox.innerHTML = 'ALERTA: Este arquivo foi alterado ou esta corrompido!';
-            }
-        }
-    </script>
+  <main>
+    <h1>FalaComigo</h1>
+    <p>Verificador local de integridade. Use somente com o SHA-256 gerado do APK real desta release.</p>
+
+    <label for="expectedHash">SHA-256 esperado</label>
+    <input id="expectedHash" type="text" spellcheck="false" autocomplete="off" placeholder="Cole o hash oficial aqui">
+
+    <label for="apkFile">APK</label>
+    <input id="apkFile" type="file" accept=".apk,application/vnd.android.package-archive">
+
+    <button id="verifyButton" type="button">Verificar APK</button>
+    <output id="result">Aguardando arquivo e hash esperado.</output>
+  </main>
+
+  <script>
+    const expectedHash = document.getElementById("expectedHash");
+    const apkFile = document.getElementById("apkFile");
+    const result = document.getElementById("result");
+    const verifyButton = document.getElementById("verifyButton");
+
+    async function sha256(file) {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    verifyButton.addEventListener("click", async () => {
+      const file = apkFile.files[0];
+      const expected = expectedHash.value.trim().toLowerCase();
+
+      if (!expected || !/^[a-f0-9]{64}$/.test(expected)) {
+        result.innerHTML = '<span class="bad">Informe um SHA-256 esperado válido.</span>';
+        return;
+      }
+      if (!file) {
+        result.innerHTML = '<span class="bad">Selecione um APK.</span>';
+        return;
+      }
+
+      result.textContent = "Calculando...";
+      const actual = await sha256(file);
+      if (actual === expected) {
+        result.innerHTML = '<span class="ok">PASS</span><br>SHA-256: ' + actual;
+      } else {
+        result.innerHTML = '<span class="bad">FAIL</span><br>SHA-256 calculado: ' + actual;
+      }
+    });
+  </script>
 </body>
 </html>

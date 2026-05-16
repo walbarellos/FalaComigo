@@ -1,11 +1,13 @@
 package br.com.falacomigo.feature.settings
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,14 +38,15 @@ fun SettingsScreen(
     viewModel: CommunicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    var showPinDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurações", fontWeight = FontWeight.Bold) },
+                title = { Text("Configurações", color = ColorTokens.OnSurface, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
@@ -80,7 +85,7 @@ fun SettingsScreen(
             ) {
                 LayoutOptionButton("Grade", state.layoutMode == BoardLayoutMode.GRID, { viewModel.setLayoutMode(BoardLayoutMode.GRID) }, Modifier.weight(1f))
                 LayoutOptionButton("Foco", state.layoutMode == BoardLayoutMode.PAGER, { viewModel.setLayoutMode(BoardLayoutMode.PAGER) }, Modifier.weight(1f))
-                LayoutOptionButton("MMO", state.layoutMode == BoardLayoutMode.MMO, { viewModel.setLayoutMode(BoardLayoutMode.MMO) }, Modifier.weight(1f))
+                LayoutOptionButton("Categorias", state.layoutMode == BoardLayoutMode.MMO, { viewModel.setLayoutMode(BoardLayoutMode.MMO) }, Modifier.weight(1f))
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = ColorTokens.Outline.copy(alpha = 0.3f))
@@ -100,10 +105,29 @@ fun SettingsScreen(
                 onCheckedChange = { viewModel.toggleVibration() }
             )
 
+            SettingsSwitchItem(
+                title = "Falar ao tocar símbolo",
+                description = "Quando desligado, o toque apenas monta a frase",
+                checked = state.speakOnTapEnabled,
+                onCheckedChange = viewModel::setSpeakOnTapEnabled
+            )
+
+            SettingsMenuItem(
+                title = "Acessibilidade",
+                description = "Texto, contraste e preferências de uso assistivo",
+                onClick = onNavigateToAccessibility
+            )
+
             SettingsMenuItem(
                 title = "Voz e Fala",
                 description = "Velocidade, tom e vozes disponíveis",
                 onClick = onNavigateToVoice
+            )
+
+            SettingsMenuItem(
+                title = "Prontidão offline",
+                description = "Verificar símbolos essenciais e fala sem internet",
+                onClick = onNavigateToOffline
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = ColorTokens.Outline.copy(alpha = 0.3f))
@@ -121,6 +145,12 @@ fun SettingsScreen(
                 onClick = onNavigateToEditor
             )
 
+            SettingsMenuItem(
+                title = "PIN da Área do Cuidador",
+                description = "Alterar o código usado para organizar a prancha",
+                onClick = { showPinDialog = true }
+            )
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = ColorTokens.Outline.copy(alpha = 0.3f))
 
             Text(
@@ -136,6 +166,17 @@ fun SettingsScreen(
                 onClick = onNavigateToAbout
             )
         }
+    }
+
+    if (showPinDialog) {
+        EditorPinDialog(
+            currentPin = state.editorPin,
+            onDismiss = { showPinDialog = false },
+            onSave = {
+                viewModel.setEditorPin(it)
+                showPinDialog = false
+            }
+        )
     }
 }
 
@@ -172,11 +213,17 @@ fun SettingsSwitchItem(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Color.Transparent
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, ColorTokens.OutlineVariant, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White,
+        shadowElevation = 1.dp
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -200,11 +247,17 @@ fun SettingsMenuItem(
 ) {
     Surface(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        color = Color.Transparent
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, ColorTokens.OutlineVariant, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White,
+        shadowElevation = 1.dp
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -214,4 +267,62 @@ fun SettingsMenuItem(
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = ColorTokens.OnSurfaceVariant)
         }
     }
+}
+
+@Composable
+private fun EditorPinDialog(
+    currentPin: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var pin by remember(currentPin) { mutableStateOf(currentPin) }
+    val isValid = pin.length >= 4
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title = {
+            Text("PIN da Área do Cuidador", fontWeight = FontWeight.ExtraBold)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "Use um código numérico para evitar mudanças acidentais na prancha.",
+                    color = ColorTokens.OnSurfaceVariant,
+                    fontSize = 13.sp
+                )
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = { pin = it.filter(Char::isDigit).take(8) },
+                    label = { Text("PIN") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    isError = pin.isNotEmpty() && !isValid,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = ColorTokens.Primary,
+                        focusedLabelColor = ColorTokens.Primary,
+                        cursorColor = ColorTokens.Primary
+                    )
+                )
+                if (pin.isNotEmpty() && !isValid) {
+                    Text("Use pelo menos 4 números.", color = ColorTokens.Error, fontSize = 12.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(pin) },
+                enabled = isValid,
+                colors = ButtonDefaults.buttonColors(containerColor = ColorTokens.Primary)
+            ) {
+                Text("Salvar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = ColorTokens.OnSurfaceVariant)
+            }
+        }
+    )
 }

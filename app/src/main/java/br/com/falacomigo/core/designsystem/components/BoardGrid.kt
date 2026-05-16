@@ -62,6 +62,8 @@ fun BoardGrid(
     layoutMode: BoardLayoutMode = BoardLayoutMode.GRID,
     speakingSymbolId: String? = null,
     vibrationEnabled: Boolean = true,
+    cardSizeScale: Float = 1.0f,
+    highContrast: Boolean = false,
     /**
      * Símbolos agrupados por categoria, fornecidos pelo ViewModel (pré-computados).
      * Se não fornecidos, o agrupamento é feito localmente — mantém retrocompatibilidade.
@@ -73,9 +75,13 @@ fun BoardGrid(
     modifier: Modifier = Modifier,
 ) {
     if (symbols.isEmpty()) {
+        val emptyMessage = when (boardId) {
+            "recentes" -> "Os símbolos usados recentemente aparecerão aqui."
+            else -> "Esta prancha ainda não tem símbolos."
+        }
         EmptyState(
-            message = "Esta prancha ainda não tem símbolos.",
-            actionLabel = "Adicionar símbolo",
+            message = emptyMessage,
+            actionLabel = null,
             onAction = null,
         )
         return
@@ -83,7 +89,16 @@ fun BoardGrid(
 
     when (layoutMode) {
         BoardLayoutMode.PAGER -> {
-            BoardPager(symbols, speakingSymbolId, vibrationEnabled, onSymbolClick, onWarmUp, modifier)
+            BoardPager(
+                symbols = symbols,
+                speakingSymbolId = speakingSymbolId,
+                vibrationEnabled = vibrationEnabled,
+                onSymbolClick = onSymbolClick,
+                onWarmUp = onWarmUp,
+                modifier = modifier,
+                cardSizeScale = cardSizeScale,
+                highContrast = highContrast,
+            )
         }
 
         BoardLayoutMode.MMO -> {
@@ -93,14 +108,18 @@ fun BoardGrid(
                     groupedSymbols = groupedSymbols,
                     speakingSymbolId = speakingSymbolId,
                     vibrationEnabled = vibrationEnabled,
+                    cardSizeScale = cardSizeScale,
+                    highContrast = highContrast,
                     onSymbolClick = onSymbolClick,
                     onWarmUp = onWarmUp,
                     modifier = modifier,
                 )
             } else {
                 StandardGrid(
-                    symbols, columns, SpacingTokens.GridGap,
+                    symbols, if (cardSizeScale > 1.05f) (columns - 1).coerceAtLeast(2) else columns, SpacingTokens.GridGap,
                     isEditMode, speakingSymbolId, vibrationEnabled,
+                    cardSizeScale,
+                    highContrast,
                     onSymbolClick, onWarmUp, onMove, modifier,
                 )
             }
@@ -108,8 +127,10 @@ fun BoardGrid(
 
         else -> {
             StandardGrid(
-                symbols, columns, SpacingTokens.GridGap,
+                symbols, if (cardSizeScale > 1.05f) (columns - 1).coerceAtLeast(2) else columns, SpacingTokens.GridGap,
                 isEditMode, speakingSymbolId, vibrationEnabled,
+                cardSizeScale,
+                highContrast,
                 onSymbolClick, onWarmUp, onMove, modifier,
             )
         }
@@ -127,6 +148,8 @@ private fun CategoryStreamLayout(
     groupedSymbols: Map<SymbolCategory, List<SymbolUiModel>>,
     speakingSymbolId: String?,
     vibrationEnabled: Boolean,
+    cardSizeScale: Float,
+    highContrast: Boolean,
     onSymbolClick: (SymbolUiModel) -> Unit,
     onWarmUp: () -> Unit,
     modifier: Modifier,
@@ -151,6 +174,8 @@ private fun CategoryStreamLayout(
                     symbols = categorySymbols,
                     speakingSymbolId = speakingSymbolId,
                     vibrationEnabled = vibrationEnabled,
+                    cardSizeScale = cardSizeScale,
+                    highContrast = highContrast,
                     onSymbolClick = onSymbolClick,
                     onWarmUp = onWarmUp,
                 )
@@ -171,6 +196,8 @@ private fun CategoryRow(
     symbols: List<SymbolUiModel>,
     speakingSymbolId: String?,
     vibrationEnabled: Boolean,
+    cardSizeScale: Float,
+    highContrast: Boolean,
     onSymbolClick: (SymbolUiModel) -> Unit,
     onWarmUp: () -> Unit,
 ) {
@@ -213,12 +240,14 @@ private fun CategoryRow(
             flingBehavior = snapBehavior,
         ) {
             items(symbols, key = { it.id }) { symbol ->
-                Box(modifier = Modifier.width(100.dp)) {
+                Box(modifier = Modifier.width(if (cardSizeScale > 1.05f) 112.dp else 100.dp)) {
                     SymbolCard(
                         symbol = symbol,
                         isSpeaking = speakingSymbolId == symbol.id,
                         vibrationEnabled = vibrationEnabled,
                         isSmall = true,
+                        textScale = cardSizeScale,
+                        highContrast = highContrast,
                         onClick = { onSymbolClick(symbol) },
                     )
                 }
@@ -240,6 +269,8 @@ private fun StandardGrid(
     isEditMode: Boolean,
     speakingSymbolId: String?,
     vibrationEnabled: Boolean,
+    cardSizeScale: Float,
+    highContrast: Boolean,
     onSymbolClick: (SymbolUiModel) -> Unit,
     onWarmUp: () -> Unit,
     onMove: (from: Int, to: Int) -> Unit,
@@ -329,6 +360,8 @@ private fun StandardGrid(
                 isEditMode = isEditMode,
                 isSpeaking = speakingSymbolId == symbol.id,
                 vibrationEnabled = vibrationEnabled,
+                cardSizeScale = cardSizeScale,
+                highContrast = highContrast,
                 reorderState = reorderState,
                 onSymbolClick = onSymbolClick,
             )
@@ -347,6 +380,8 @@ private fun SymbolGridItem(
     isEditMode: Boolean,
     isSpeaking: Boolean,
     vibrationEnabled: Boolean,
+    cardSizeScale: Float,
+    highContrast: Boolean,
     reorderState: ReorderableGridState,
     onSymbolClick: (SymbolUiModel) -> Unit,
 ) {
@@ -374,6 +409,8 @@ private fun SymbolGridItem(
             symbol = symbol,
             isSpeaking = isSpeaking,
             vibrationEnabled = vibrationEnabled,
+            textScale = cardSizeScale,
+            highContrast = highContrast,
             onClick = onClickStable,
         )
         if (isEditMode) {

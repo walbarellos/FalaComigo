@@ -1,0 +1,10 @@
+storeFile=/absolute/path/outside/repo/falacomigo-release.keystore
+storePassword=REPLACE_WITH_LOCAL_STORE_PASSWORD
+keyAlias=falacomigo
+keyPassword=REPLACE_WITH_LOCAL_KEY_PASSWORD
+
+# Equivalent environment variables:
+# FALACOMIGO_STORE_FILE
+# FALACOMIGO_STORE_PASSWORD
+# FALACOMIGO_KEY_ALIAS
+# FALACOMIGO_KEY_PASSWORD

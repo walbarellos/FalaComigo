@@ -1,239 +1,32 @@
-# ===========================================
-# FALA COMIGO - .gitignore
-# Projeto de Comunicação Aumentativa e Alternativa
-# ===========================================
-
-# -------------------------------------------
-# Documentação e Explanations
-# -------------------------------------------
-# PROTEÇÃO: Ignorar toda a pasta de documentação (Sigilo de Metodologia)
-docs/
-docs/*
-
-# Arquivos de explicação/memória
-EXP/
-*.md.txt
-*~
-
-# -------------------------------------------
-# IDEs e Editores
-# -------------------------------------------
-.idea/
-.vscode/
+# Android GitIgnore
 *.iml
-*.ipr
-*.iws
-.project
-.classpath
-.settings/
-*.swp
-*.swo
-*~
-
-# Android Studio
-.idea/
-app/build/
-build/
-.gradle/
-local.properties
-
-# IntelliJ IDEA
-*.idea
-
-# Eclipse
-.classpath
-.project
-.settings/
-
-# VS Code
-.vscode/
-
-# -------------------------------------------
-# Build e Compilação
-# -------------------------------------------
-bin/
-build/
-out/
-app/build/
-app/bin/
-*.apk
-*.ap_
-*.dex
-*.class
-*.jar
-
-# Gradle
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-
-# Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-
-# Kotlin
-*.kotlin_module
-*.jar
-*.log
-
-# -------------------------------------------
-# Assets e Recursos
-# -------------------------------------------
-*.png
-*.jpg
-*.jpeg
-!app/src/main/res/drawable-nodpi/*.png
-!app/src/main/res/drawable-*/**
-
-# Imagens de Assets (manter apenas as originais)
-assets/
-!assets/original/
-!assets/icons/
-
-# Fonts personalizadas
-fonts/
-*.ttf
-*.otf
-
-# -------------------------------------------
-# Dados e Database
-# -------------------------------------------
-*.db
-*.sqlite
-*.sqlite3
-*.db-shm
-*.db-wal
-/databases/
+.gradle
 /local.properties
-
-# Shared Preferences (dados sensíveis)
-shared_prefs/
-*.xml
-
-# Realm
-*.realm
-*.realm.lock
-
-# -------------------------------------------
-# Logs e Debug
-# -------------------------------------------
-logs/
-*.log
-logcat/
-Dumpstack*.log
-stacktrace.txt
-
-# -------------------------------------------
-# Configurações Pessoais
-# -------------------------------------------
-local.properties
-key.properties
-secrets.properties
-*.properties.local
-.env
-.env.*
-credentials.json
-service-account.json
-
-# Android Emulator
-*.keystore
-debug.keystore
-
-# -------------------------------------------
-# Sistema Operacional
-# -------------------------------------------
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-Thumbs.db
-desktop.ini
-$RECYCLE.BIN/
-Trash/
+/build
+/captures
+.externalNativeBuild
+.cxx
+/google-services.json
 
-# -------------------------------------------
-# Temp e Caches
-# -------------------------------------------
-temp/
-tmp/
-cache/
-.caches/
-*.cache
-*~
+# User-specific configuration
+/app/build
+/desktop/build
 
-# -------------------------------------------
-# Configurações de Teste
-# -------------------------------------------
-/androidTests/
-/test/
-junit/
-test-results/
-*.testresult
+# Signing files
+*.jks
+*.keystore
+key.properties
 
-# instrumentation test output
-/test-results/
-/instrumentation-test-results.xml
+# Log files
+*.log
 
-# -------------------------------------------
-# ProGuard e obfuscação
-# -------------------------------------------
-proguard/
-*proguard*
-mapping.txt
-seeds.txt
-
-# -------------------------------------------
-# КOTLIN CACHE
-# -------------------------------------------
-.kotlin_code/
-.kotlin_dsl/
-kotlinSourceSets/
-.kotlin/
-
-# -------------------------------------------
-# KSP (Kotlin Symbol Processing)
-# -------------------------------------------
-ksp/
-.ksp/
-*_ksp/
-ksp*.txt
-
-# -------------------------------------------
-# Ignore App Bundle (não publicar)
-# -------------------------------------------
-app/release/
-app/signing/
-*.aab
-output-metadata.json
-
-# MAS NÃO IGNORAR releases - wanted for distribution
-/releases/*.apk
-
-# -------------------------------------------
-# Configurações de Segurança
-# -------------------------------------------
-# Não commitar API keys ou secrets
-*apikey*
-*secret*
-*password*
-
-# -------------------------------------------
-# Firebase
-# -------------------------------------------
-google-services.json
-google-services (1).json
-google-services (2).json
-google-services (3).json
-google-services (4).json
-google-services (5).json
-
-# -------------------------------------------
-# Firebase Crashlytics
-# -------------------------------------------
-firebase.json
-Fabric.properties
-fabric-generated.properties
-crashlytics-build.properties
-crashlytics-history/
-crashlyticons/
+# Built APKs (except the root one we want to keep)
+/app/build/outputs/apk/*
+/app/build/outputs/bundle/*

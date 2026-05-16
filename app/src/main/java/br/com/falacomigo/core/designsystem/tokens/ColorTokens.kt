@@ -4,18 +4,18 @@ import androidx.compose.ui.graphics.Color
 
 object ColorTokens {
     // Primary colors
-    val Primary = Color(0xFF2F6FDB)
+    val Primary = Color(0xFF6366F1)
     val OnPrimary = Color(0xFFFFFFFF)
-    val PrimaryContainer = Color(0xFFE8F1FF)
+    val PrimaryContainer = Color(0xFFEEF2FF)
     val OnPrimaryContainer = Color(0xFF001D36)
 
-    // Surface & Background (ChatGPT spec)
-    val Background = Color(0xFFF8FAFC)  // azul muito claro.clean
+    // Surface & Background
+    val Background = Color(0xFFF0F4FF)
     val Surface = Color(0xFFFFFFFF)
     val OnSurface = Color(0xFF111827)    // almost black
     val OnBackground = Color(0xFF111827)
-    val SurfaceVariant = Color(0xFFF3F4F6)
-    val OnSurfaceVariant = Color(0xFF6B7280)
+    val SurfaceVariant = Color(0xFFF1F5F9)
+    val OnSurfaceVariant = Color(0xFF64748B)
 
     // Secondary
     val Secondary = Color(0xFFF59E0B)
@@ -30,8 +30,8 @@ object ColorTokens {
     val OnErrorContainer = Color(0xFF7F1D1D)
 
     // Borders
-    val Outline = Color(0xFFE5E7EB)
-    val OutlineVariant = Color(0xFFF3F4F6)
+    val Outline = Color(0xFFE2E8F0)
+    val OutlineVariant = Color(0xFFE8EEFF)
 
     // Card colors - pastels ChatGPT (nunca brighter)
     val CardMint = Color(0xFFEAF7EF)

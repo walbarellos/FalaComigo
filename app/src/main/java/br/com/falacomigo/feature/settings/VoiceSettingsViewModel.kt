@@ -76,10 +76,8 @@ class VoiceSettingsViewModel @Inject constructor(
 
     fun testVoice() {
         viewModelScope.launch {
-            try {
+            runCatching {
                 ttsController.speak("Eu quero água. Me ajuda. Quero parar.")
-            } catch (e: Exception) {
-                println("TTS Error: ${e.message}")
             }
         }
     }
@@ -129,11 +127,9 @@ class VoiceSettingsViewModel @Inject constructor(
     }
 
     private fun openSystemIntent(intent: Intent) {
-        try {
+        runCatching {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-        } catch (e: Exception) {
-            println("TTS settings intent error: ${e.message}")
         }
     }
 

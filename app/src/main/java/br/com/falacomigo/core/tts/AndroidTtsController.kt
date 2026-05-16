@@ -4,7 +4,6 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
-import android.util.Log
 import br.com.falacomigo.data.repository.SettingsRepository
 import java.util.Locale
 
@@ -12,6 +11,7 @@ class AndroidTtsController(
     context: Context,
     private val settingsRepository: SettingsRepository
 ) : TtsController {
+    private val portugueseBrazil = Locale("pt", "BR")
     private val appContext = context.applicationContext
     private var tts: TextToSpeech? = null
     private var isInitialized = false
@@ -31,8 +31,7 @@ class AndroidTtsController(
         isInitializing = false
         if (status == TextToSpeech.SUCCESS) {
             tts?.let { engine ->
-                val result = engine.setLanguage(Locale("pt", "BR"))
-                Log.d("TTS", "setLanguage result: $result")
+                configureLanguage(engine)
                 refreshAvailableVoices(engine, offlineOnly)
                 selectedVoiceId?.let { selectVoice(it) }
                 
@@ -41,24 +40,24 @@ class AndroidTtsController(
                 
                 engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
-                        Log.d("TTS", "onStart: $utteranceId")
                         utteranceId?.let { onStartListener?.invoke(it) }
                     }
 
                     override fun onDone(utteranceId: String?) {
-                        Log.d("TTS", "onDone: $utteranceId")
                         utteranceId?.let { onDoneListener?.invoke(it) }
                     }
 
                     @Deprecated("Deprecated in Java")
                     override fun onError(utteranceId: String?) {
-                        Log.e("TTS", "onError: $utteranceId")
+                        utteranceId?.let { onErrorListener?.invoke(it) }
+                    }
+
+                    override fun onError(utteranceId: String?, errorCode: Int) {
                         utteranceId?.let { onErrorListener?.invoke(it) }
                     }
                 })
                 
                 isInitialized = true
-                Log.d("TTS", "TTS initialized successfully!")
                 pendingText?.let { text ->
                     pendingText = null
                     speak(text)
@@ -66,7 +65,7 @@ class AndroidTtsController(
             }
         } else {
             isInitialized = false
-            Log.e("TTS", "TTS init failed with status: $status")
+            onErrorListener?.invoke("tts_init_failed_$status")
         }
     }
 
@@ -89,24 +88,30 @@ class AndroidTtsController(
         if (normalizedText.isBlank()) return
         
         if (!isInitialized) {
-            Log.w("TTS", "TTS not initialized. Scheduling speech after init.")
             pendingText = normalizedText
             initializeTts()
             return
         }
         
         try {
-            tts?.let { engine ->
-                engine.setSpeechRate(speechRate)
-                engine.setPitch(pitch)
-                
-                // Usamos QUEUE_FLUSH para interromper o anterior e falar o novo imediatamente
-                // Adicionamos um ID único baseado no tempo para garantir que os callbacks de progresso funcionem
-                val utteranceId = "${normalizedText.hashCode()}_${System.currentTimeMillis()}"
-                engine.speak(normalizedText, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+            val engine = tts
+            if (engine == null) {
+                onErrorListener?.invoke("tts_engine_null")
+                recoverTts(normalizedText)
+                return
+            }
+
+            engine.setSpeechRate(speechRate)
+            engine.setPitch(pitch)
+
+            // Usamos QUEUE_FLUSH para interromper o anterior e falar o novo imediatamente.
+            val utteranceId = "${normalizedText.hashCode()}_${System.currentTimeMillis()}"
+            val result = engine.speak(normalizedText, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+            if (result == TextToSpeech.ERROR) {
+                onErrorListener?.invoke(utteranceId)
+                recoverTts(normalizedText)
             }
         } catch (e: Exception) {
-            Log.e("TTS", "speak error: ${e.message}")
             recoverTts(normalizedText)
         }
     }
@@ -115,7 +120,7 @@ class AndroidTtsController(
         if (!isInitialized) return
         try {
             // Toca 10ms de silêncio para acordar o hardware de áudio do Android
-            tts?.playSilentUtterance(10L, TextToSpeech.QUEUE_ADD, null)
+            tts?.playSilentUtterance(10L, TextToSpeech.QUEUE_ADD, "warmup_${System.currentTimeMillis()}")
         } catch (e: Exception) {
             // Ignorado, é apenas um warm-up
         }
@@ -155,7 +160,6 @@ class AndroidTtsController(
         speechRate = rate.coerceIn(0.5f, 1.5f)
         settingsRepository.setVoiceSpeechRate(speechRate)
         tts?.setSpeechRate(speechRate)
-        Log.d("TTS", "SpeechRate set to: $speechRate")
     }
 
     override fun setPitch(pitch: Float) {
@@ -216,13 +220,27 @@ class AndroidTtsController(
     private fun normalizeSpeechText(text: String): String {
         val cleaned = text.trim().replace(Regex("\\s+"), " ")
         if (cleaned.isBlank()) return cleaned
-        val capitalized = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
+        val capitalized = cleaned.replaceFirstChar { if (it.isLowerCase()) it.titlecase(portugueseBrazil) else it.toString() }
         return if (capitalized.last() in ".!?") capitalized else "$capitalized."
+    }
+
+    private fun configureLanguage(engine: TextToSpeech): Int {
+        val ptBrResult = engine.setLanguage(portugueseBrazil)
+        if (ptBrResult.isSupportedLanguageResult()) return ptBrResult
+
+        val ptResult = engine.setLanguage(Locale("pt"))
+        if (ptResult.isSupportedLanguageResult()) return ptResult
+
+        val fallbackLocale = Locale.getDefault()
+        val fallbackResult = engine.setLanguage(fallbackLocale)
+        if (!fallbackResult.isSupportedLanguageResult()) {
+            onErrorListener?.invoke("tts_language_unavailable")
+        }
+        return fallbackResult
     }
 
     private fun initializeTts() {
         if (isInitialized || isInitializing) return
-        Log.d("TTS", "Creating AndroidTtsController...")
         isInitializing = true
         tts = TextToSpeech(appContext, initListener)
     }
@@ -231,5 +249,11 @@ class AndroidTtsController(
         pendingText = textToRetry
         shutdown()
         initializeTts()
+    }
+
+    private fun Int.isSupportedLanguageResult(): Boolean {
+        return this != TextToSpeech.LANG_MISSING_DATA &&
+            this != TextToSpeech.LANG_NOT_SUPPORTED &&
+            this != TextToSpeech.ERROR
     }
 }

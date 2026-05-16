@@ -52,13 +52,18 @@ data class CommunicationState(
     val routines: List<RoutineUiModel> = emptyList(),
     val favorites: List<FavoritePhrase> = emptyList(),
     val vibrationEnabled: Boolean = true,
+    val speakOnTapEnabled: Boolean = true,
     val layoutMode: BoardLayoutMode = BoardLayoutMode.GRID,
     val speakingSymbolId: String? = null,
     val isSpeaking: Boolean = false,
+    val speechErrorMessage: String? = null,
     val searchResults: List<SymbolUiModel> = emptyList(),
     val isSearching: Boolean = false,
     val editingRoutine: RoutineUiModel? = null,
-    val editingRoutineSymbols: List<SymbolUiModel> = emptyList()
+    val editingRoutineSymbols: List<SymbolUiModel> = emptyList(),
+    val editorPin: String = "1234",
+    val highContrastEnabled: Boolean = false,
+    val cardSizeScale: Float = 1.0f
 )
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -288,6 +293,46 @@ class CommunicationViewModel @Inject constructor(
     fun toggleVibration() = dispatch(CommunicationAction.ToggleVibration)
     fun warmUpTts() = dispatch(CommunicationAction.WarmUpTts)
 
+    fun clearSpeechError() {
+        reduce { it.copy(speechErrorMessage = null) }
+    }
+
+    fun setSpeakOnTapEnabled(enabled: Boolean) {
+        settingsRepository.setSpeakOnTapEnabled(enabled)
+    }
+
+    fun recordSymbolUse(symbol: SymbolUiModel) {
+        if (symbol.id.startsWith("routine_")) return
+        viewModelScope.launch(Dispatchers.IO) {
+            symbolRepository.updateUsage(symbol.id)
+        }
+    }
+
+    fun saveFavoritePhrase(text: String) {
+        settingsRepository.saveFavoritePhrase(text)
+    }
+
+    fun deleteFavoritePhrase(id: String) {
+        settingsRepository.deleteFavoritePhrase(id)
+    }
+
+    fun setEditorPin(pin: String) {
+        settingsRepository.setEditorPin(pin)
+    }
+
+    fun setHighContrastEnabled(enabled: Boolean) {
+        settingsRepository.setHighContrastEnabled(enabled)
+    }
+
+    fun setLargeTextEnabled(enabled: Boolean) {
+        settingsRepository.setCardSizeScale(if (enabled) 1.18f else 1.0f)
+    }
+
+    fun onFavoritePhraseClick(favorite: FavoritePhrase) {
+        settingsRepository.recordFavoritePhraseUse(favorite.id)
+        onSymbolClick(SymbolUiModel(id = favorite.id, label = favorite.text, spokenText = favorite.text))
+    }
+
     private fun handleSetLayoutMode(mode: BoardLayoutMode) {
         viewModelScope.launch { settingsRepository.setBoardLayoutMode(mode) }
     }
@@ -299,10 +344,16 @@ class CommunicationViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                reduce { it.copy(speakingSymbolId = symbol.id) }
+                reduce { it.copy(speakingSymbolId = symbol.id, speechErrorMessage = null) }
                 speakSymbolUseCase(symbol)
             } catch (e: Exception) {
-                reduce { it.copy(speakingSymbolId = null, isSpeaking = false) }
+                reduce {
+                    it.copy(
+                        speakingSymbolId = null,
+                        isSpeaking = false,
+                        speechErrorMessage = "Não consegui falar agora. Verifique Voz e Fala em Configurações."
+                    )
+                }
             }
         }
     }
@@ -363,16 +414,44 @@ class CommunicationViewModel @Inject constructor(
             .onEach { enabled -> reduce { it.copy(vibrationEnabled = enabled) } }
             .launchIn(viewModelScope)
 
+        settingsRepository.speakOnTapEnabled
+            .onEach { enabled -> reduce { it.copy(speakOnTapEnabled = enabled) } }
+            .launchIn(viewModelScope)
+
         settingsRepository.boardLayoutMode
             .onEach { mode -> reduce { it.copy(layoutMode = mode) } }
+            .launchIn(viewModelScope)
+
+        settingsRepository.favoritePhrases
+            .onEach { favorites -> reduce { it.copy(favorites = favorites) } }
+            .launchIn(viewModelScope)
+
+        settingsRepository.editorPin
+            .onEach { pin -> reduce { it.copy(editorPin = pin) } }
+            .launchIn(viewModelScope)
+
+        settingsRepository.highContrastEnabled
+            .onEach { enabled -> reduce { it.copy(highContrastEnabled = enabled) } }
+            .launchIn(viewModelScope)
+
+        settingsRepository.cardSizeScale
+            .onEach { scale -> reduce { it.copy(cardSizeScale = scale) } }
             .launchIn(viewModelScope)
     }
 
     private fun setupTtsListeners() {
         ttsController.setOnSpeechProgressListener(
-            onStart = { _ -> reduce { it.copy(isSpeaking = true) } },
+            onStart = { _ -> reduce { it.copy(isSpeaking = true, speechErrorMessage = null) } },
             onDone = { _ -> reduce { it.copy(isSpeaking = false, speakingSymbolId = null) } },
-            onError = { _ -> reduce { it.copy(isSpeaking = false, speakingSymbolId = null) } }
+            onError = { _ ->
+                reduce {
+                    it.copy(
+                        isSpeaking = false,
+                        speakingSymbolId = null,
+                        speechErrorMessage = "Não consegui falar agora. Verifique Voz e Fala em Configurações."
+                    )
+                }
+            }
         )
     }
 

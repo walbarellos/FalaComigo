@@ -12,7 +12,6 @@ class FakeTtsController : TtsController {
         lastSpoken = text
         speakCount++
         stopped = false
-        println("FAKE TTS: $text")
         
         onStartListener?.invoke(text.hashCode().toString())
         // Simulate speech delay

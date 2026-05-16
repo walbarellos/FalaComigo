@@ -43,13 +43,13 @@ abstract class FalaComigoDatabase : RoomDatabase() {
         const val DATABASE_NAME = "fala_comigo_db"
 
         val MIGRATION_30_31 = object : Migration(30, 31) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE symbols ADD COLUMN localImagePath TEXT")
-                database.execSQL("ALTER TABLE symbols ADD COLUMN thumbnailPath TEXT")
-                database.execSQL(
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE symbols ADD COLUMN localImagePath TEXT")
+                db.execSQL("ALTER TABLE symbols ADD COLUMN thumbnailPath TEXT")
+                db.execSQL(
                     "ALTER TABLE symbols ADD COLUMN imageDownloadStatus TEXT NOT NULL DEFAULT 'PENDING'"
                 )
-                database.execSQL("ALTER TABLE symbols ADD COLUMN isEmergency INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE symbols ADD COLUMN isEmergency INTEGER NOT NULL DEFAULT 0")
             }
         }
 

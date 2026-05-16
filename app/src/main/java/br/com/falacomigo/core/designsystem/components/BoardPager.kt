@@ -31,7 +31,9 @@ fun BoardPager(
     vibrationEnabled: Boolean = true,
     onSymbolClick: (SymbolUiModel) -> Unit,
     onWarmUp: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardSizeScale: Float = 1.0f,
+    highContrast: Boolean = false,
 ) {
     val pagerState = rememberPagerState(pageCount = { symbols.size })
     val view = LocalView.current
@@ -93,6 +95,8 @@ fun BoardPager(
                 vibrationEnabled = vibrationEnabled,
                 isSmall = false,
                 parallaxOffset = parallaxX, // INJETADO NO CUSTOM LAYOUT
+                textScale = cardSizeScale,
+                highContrast = highContrast,
                 onClick = { onSymbolClick(symbol) }
             )
         }

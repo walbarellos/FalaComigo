@@ -72,3 +72,11 @@
 # Se o release futuro quebrar por minificação, adicionar regra mínima
 # apenas para a classe indicada pelo erro real.
 # -------------------------------------------
+
+# -------------------------------------------
+# Gson / TypeToken fix
+# -------------------------------------------
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep public class * extends com.google.gson.reflect.TypeToken
+-keep class com.google.gson.** { *; }

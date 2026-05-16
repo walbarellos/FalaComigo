@@ -6,7 +6,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,13 +46,22 @@ fun EmergencyBoardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Urgente", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFDC2626))
+                        Spacer(Modifier.width(8.dp))
+                        Text("SOS", color = Color(0xFFDC2626), fontWeight = FontWeight.ExtraBold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.SecondaryContainer)
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White,
+                    navigationIconContentColor = Color(0xFF0F172A)
+                )
             )
         },
         containerColor = ColorTokens.Background
@@ -64,7 +75,7 @@ fun EmergencyBoardScreen(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
+                columns = GridCells.Fixed(if (state.cardSizeScale > 1.05f) 3 else 4),
                 modifier = Modifier.fillMaxSize().padding(paddingValues),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -75,6 +86,8 @@ fun EmergencyBoardScreen(
                         symbol = symbol,
                         vibrationEnabled = state.vibrationEnabled,
                         isSpeaking = state.speakingSymbolId == symbol.id,
+                        textScale = state.cardSizeScale,
+                        highContrast = state.highContrastEnabled,
                         onClick = { viewModel.onSymbolClick(symbol) }
                     )
                 }
@@ -96,10 +109,10 @@ fun BoardSelectorScreen(
                 title = { Text("Escolher Prancha", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ColorTokens.Surface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
         containerColor = ColorTokens.Background
@@ -116,8 +129,8 @@ fun BoardSelectorScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = ColorTokens.SurfaceVariant,
-                    tonalElevation = 2.dp
+                    color = Color.White,
+                    shadowElevation = 1.dp
                 ) {
                     Box(modifier = Modifier.padding(20.dp)) {
                         Text(board.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)

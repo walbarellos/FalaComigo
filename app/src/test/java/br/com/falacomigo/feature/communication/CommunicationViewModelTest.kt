@@ -3,6 +3,7 @@ package br.com.falacomigo.feature.communication
 import android.content.Context
 import br.com.falacomigo.core.model.BoardLayoutMode
 import br.com.falacomigo.core.model.BoardUiModel
+import br.com.falacomigo.core.model.FavoritePhrase
 import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.core.tts.TtsController
@@ -56,7 +57,12 @@ class CommunicationViewModelTest {
         
         // Mock default flows as StateFlows to match the new repository contract
         every { settingsRepository.vibrationEnabled } returns MutableStateFlow(true)
+        every { settingsRepository.speakOnTapEnabled } returns MutableStateFlow(true)
         every { settingsRepository.boardLayoutMode } returns MutableStateFlow(BoardLayoutMode.GRID)
+        every { settingsRepository.favoritePhrases } returns MutableStateFlow(emptyList<FavoritePhrase>())
+        every { settingsRepository.editorPin } returns MutableStateFlow("1234")
+        every { settingsRepository.highContrastEnabled } returns MutableStateFlow(false)
+        every { settingsRepository.cardSizeScale } returns MutableStateFlow(1.0f)
         every { routineRepository.getAllRoutines() } returns flowOf(emptyList())
         every { symbolRepository.getAllSymbols() } returns flowOf(emptyList())
         every { boardRepository.getBoardWithSymbolsFlow(any()) } returns flowOf(BoardUiModel("comunicacao", "Comunicação"))
@@ -83,6 +89,24 @@ class CommunicationViewModelTest {
         advanceUntilIdle()
         
         coVerify { speakSymbolUseCase(symbol) }
+    }
+
+    @Test
+    fun `alterar fala ao toque persiste preferencia`() = runTest(testDispatcher) {
+        viewModel.setSpeakOnTapEnabled(false)
+
+        verify { settingsRepository.setSpeakOnTapEnabled(false) }
+    }
+
+    @Test
+    fun `registrar uso de simbolo nao chama voz`() = runTest(testDispatcher) {
+        val symbol = SeedSymbols.symbols.first()
+
+        viewModel.recordSymbolUse(symbol)
+        advanceUntilIdle()
+
+        coVerify { symbolRepository.updateUsage(symbol.id) }
+        coVerify(exactly = 0) { speakSymbolUseCase(any()) }
     }
 
     @Test

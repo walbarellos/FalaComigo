@@ -1,5 +1,6 @@
 package br.com.falacomigo.di
 
+import br.com.falacomigo.BuildConfig
 import br.com.falacomigo.data.remote.ArasaacApi
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,11 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BASIC
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
         return OkHttpClient.Builder()
             .addInterceptor(logging)

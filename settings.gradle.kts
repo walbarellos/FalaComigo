@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FalaComigo"
 include(":app")
+include(":desktop")
