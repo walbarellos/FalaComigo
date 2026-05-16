@@ -8,14 +8,14 @@ Este arquivo descreve o estado de release do workspace atual. Ele substitui hash
 - `:app:testDebugUnitTest`: PASS
 - `:app:assembleRelease`: PASS
 - Debug APK: assinado com chave debug e verificavel.
-- Release APK: gerado como unsigned quando nao ha `key.properties`.
-- Distribuicao: BLOQUEADA ate existir release assinado com keystore local real.
+- Release APK: v0.4.2-beta assinado e funcional.
+- Distribuicao: BETA aberta via GitHub branch beta.
 
 ## Artefatos
 
 ```text
-app/build/outputs/apk/debug/app-debug.apk
-app/build/outputs/apk/release/app-release-unsigned.apk
+FalaComigo-v0.4.2-beta.apk (na raiz)
+app/build/outputs/apk/release/app-release.apk
 ```
 
 ## Comandos de Validacao
