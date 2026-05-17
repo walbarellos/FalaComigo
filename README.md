@@ -138,7 +138,7 @@ O **Fala Comigo** é distribuído sob licença **Business Source License 1.1 (BS
 
 ### Termos de Uso
 - **Uso não-comercial:** Gratuito e permitido para indivíduos e ONGs.
-- **Uso comercial/produção:** Requer licença comercial do Licenciante até 06/05/2030.
+- **Uso comercial/produção:** Requer licença comercial do Licenciante até 06/05/2070.
 - **Pós-Change Date:** A licença converterá automaticamente para **Apache 2.0**.
 
 ### Criador do Projeto
