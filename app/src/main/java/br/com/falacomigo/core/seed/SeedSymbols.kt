@@ -8,6 +8,17 @@ object SeedSymbols {
     private const val ARASAAC_BASE_URL = "https://static.arasaac.org/pictograms/"
     private const val CACHE_KEY = "?v=20240426_V33_STABLE" 
 
+    val criticalOfflineIds: Set<String> = setOf(
+        "agua",
+        "com_sede",
+        "com_fome",
+        "banheiro",
+        "dor",
+        "machucado",
+        "ajuda",
+        "quero_parar"
+    )
+
     val symbols: List<SymbolUiModel> = listOf(
         // --- CATEGORIA: BÁSICOS ORIGINAIS DO DIFF (Com Imagens Locais) ---
         SymbolUiModel(id = "eu", label = "Eu", spokenText = "Eu", categoryId = "basic", imagePath = "sym_eu"),
@@ -99,6 +110,7 @@ object SeedSymbols {
     )
 
     fun findById(id: String): SymbolUiModel? = symbols.find { it.id == id }
+    fun isCriticalOffline(id: String): Boolean = id in criticalOfflineIds
 }
 
 object SeedBoards {

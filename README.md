@@ -31,7 +31,7 @@
     <img src="https://img.shields.io/badge/DOWNLOAD_BETA_APK-v0.4.2-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
-  <code>SHA-256 (v0.4.2-beta): 67d492778be90be2a726f0638e4f8506242fd88e12bcca0c1ff036944bceeb65</code>
+  <code>SHA-256 local verificado (v0.4.2-beta): ab6ea0d192383e8407188e6230586994b387daada6536302c59e67a529406afb</code>
 </div>
 
 ---
@@ -67,7 +67,7 @@ Tabela de Conteúdos
 O Fala Comigo v0.4.2-beta foi submetido a validações de estabilidade e integridade para garantir uma experiência segura. Esta versão beta corrige especificamente o crash de inicialização em builds de produção.
 
 ### Selo de Autenticidade (SHA-256)
-Código SHA-256 oficial da v0.4.2-beta: `67d492778be90be2a726f0638e4f8506242fd88e12bcca0c1ff036944bceeb65`
+Código SHA-256 local verificado da v0.4.2-beta: `ab6ea0d192383e8407188e6230586994b387daada6536302c59e67a529406afb`
 
 ---
 
@@ -115,6 +115,29 @@ Acesse a [Branch Beta](https://github.com/walbarellos/FalaComigo/tree/beta) ou a
 Execute no seu terminal para garantir a integridade:
 *   **macOS/Linux**: `sha256sum FalaComigo-v0.4.2-beta.apk`
 *   **Windows**: `certutil -hashfile FalaComigo-v0.4.2-beta.apk SHA256`
+
+### 3. Gates locais de build/deploy
+No workspace Android, use os scripts operacionais:
+
+```bash
+scripts/check_release_safety.sh
+scripts/verify_apk_integrity.sh app/build/outputs/apk/release/app-release.apk --write-sha256
+scripts/install_release_apk.sh app/build/outputs/apk/release/app-release.apk
+scripts/device_smoke_check.sh
+scripts/package_internal_release.sh app/build/outputs/apk/release/app-release.apk
+```
+
+Para executar o ciclo completo no aparelho conectado por ADB:
+
+```bash
+scripts/run_release_device_cycle.sh
+```
+
+Play Store/AAB permanece gate futuro:
+
+```bash
+scripts/check_play_store_readiness.sh
+```
 
 ---
 

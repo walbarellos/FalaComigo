@@ -10,6 +10,8 @@ import br.com.falacomigo.core.model.FavoritePhrase
 import br.com.falacomigo.core.model.RoutineUiModel
 import br.com.falacomigo.core.model.SymbolCategory
 import br.com.falacomigo.core.model.SymbolUiModel
+import br.com.falacomigo.core.seed.SeedBoards
+import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.core.tts.TtsController
 import br.com.falacomigo.data.images.SymbolImageStore
 import br.com.falacomigo.data.repository.BoardRepository
@@ -91,8 +93,8 @@ class CommunicationViewModel @Inject constructor(
     private var backgroundPrefetchJob: Job? = null
     private var warmUpJob: Job? = null
     private var lastWarmUpUptimeMs = 0L
-    private val firstPaintWindow = 24
     private val warmUpCooldownMs = 1_500L
+    private val imageStatusFailed = "FAILED"
 
     init {
         setupTtsListeners()
@@ -136,7 +138,9 @@ class CommunicationViewModel @Inject constructor(
                 }
                 filter == "comunicacao" -> {
                     boardRepository.getBoardWithSymbolsFlow("comunicacao").map { board ->
-                        if (board == null) return@map null
+                        val communicationBoard = board?.takeIf { it.symbols.isNotEmpty() }
+                            ?: seedBoardFallback("comunicacao", allSymbols)
+                            ?: return@map null
                         val firstSymbolIds = routines.mapNotNull { it.symbols.firstOrNull() }.toSet()
                         val symbolsById = allSymbols.filter { it.id in firstSymbolIds }.associateBy { it.id }
                         val routineSymbols = routines.map { r ->
@@ -153,32 +157,53 @@ class CommunicationViewModel @Inject constructor(
                                 isCustom = true
                             )
                         }
-                        board.copy(symbols = routineSymbols + board.symbols)
+                        communicationBoard.copy(symbols = routineSymbols + communicationBoard.symbols)
                     }
                 }
                 filter == "urgente" -> {
                     boardRepository.getBoardWithSymbolsFlow("urgente").map { board ->
-                        board?.takeIf { it.symbols.isNotEmpty() } ?: BoardUiModel(
-                            id = "urgente",
-                            title = "Urgente",
-                            symbols = allSymbols.filter {
-                                it.isEmergency || it.categoryId == "emergencia" || it.categoryId == "saude"
-                            },
-                            columns = 4,
-                            isEmergency = true
-                        )
+                        board?.takeIf { it.symbols.isNotEmpty() }
+                            ?: seedBoardFallback("urgente", allSymbols)
+                            ?: BoardUiModel(
+                                id = "urgente",
+                                title = "Urgente",
+                                symbols = allSymbols.filter {
+                                    it.isEmergency || it.categoryId == "emergencia" || it.categoryId == "saude"
+                                },
+                                columns = 4,
+                                isEmergency = true
+                            )
                     }
                 }
                 else -> {
                     val filtered = allSymbols.filter { it.categoryId == filter }
                     val category = SymbolCategory.fromId(filter)
-                    flowOf(BoardUiModel(id = filter, title = category.title, symbols = filtered, columns = 4))
+                    val board = if (filtered.isNotEmpty()) {
+                        BoardUiModel(id = filter, title = category.title, symbols = filtered, columns = 4)
+                    } else {
+                        seedBoardFallback(filter, allSymbols)
+                            ?: BoardUiModel(id = filter, title = category.title, symbols = emptyList(), columns = 4)
+                    }
+                    flowOf(board)
                 }
             }
         }
         .flowOn(Dispatchers.Default)
         .onEach { board ->
             if (board != null) {
+                if (!board.hasBlockingCriticalDownloads()) {
+                    val grouped = board.symbols.groupBy { it.category }
+                    reduce {
+                        it.copy(
+                            currentBoard = board,
+                            groupedSymbols = grouped,
+                            isBootstrappingImages = false,
+                            bootstrapProgress = 1f,
+                            readyImageCount = 0,
+                            totalCriticalImages = 0
+                        )
+                    }
+                }
                 val preparedBoard = prepareBoardForDisplay(board)
                 val grouped = preparedBoard.symbols.groupBy { it.category }
                 reduce { 
@@ -186,18 +211,60 @@ class CommunicationViewModel @Inject constructor(
                         currentBoard = preparedBoard, 
                         groupedSymbols = grouped,
                         isBootstrappingImages = false,
-                        bootstrapProgress = 1f
+                        bootstrapProgress = 1f,
+                        readyImageCount = 0,
+                        totalCriticalImages = 0
                     ) 
                 }
                 scheduleBackgroundPrefetch(preparedBoard)
+            } else {
+                val fallbackBoard = fallbackBoardForFilter(_activeFilter.value)
+                reduce {
+                    it.copy(
+                        currentBoard = fallbackBoard,
+                        groupedSymbols = emptyMap(),
+                        isBootstrappingImages = false,
+                        bootstrapProgress = 1f,
+                        readyImageCount = 0,
+                        totalCriticalImages = 0
+                    )
+                }
             }
         }
         .launchIn(viewModelScope)
     }
 
+    private fun fallbackBoardForFilter(filter: String): BoardUiModel {
+        val title = when {
+            filter == "comunicacao" -> "Prancha"
+            filter == "recentes" -> "Recentes"
+            filter == "urgente" -> "Urgente"
+            filter.startsWith("routine_") -> "Rotina"
+            else -> SymbolCategory.fromId(filter).title
+        }
+        return BoardUiModel(id = filter, title = title, symbols = emptyList(), columns = 4)
+    }
+
+    private fun BoardUiModel.hasBlockingCriticalDownloads(): Boolean {
+        return symbols
+            .filter { symbol -> SeedSymbols.isCriticalOffline(symbol.id) }
+            .any(::needsPersistentDownload)
+    }
+
+    private fun seedBoardFallback(boardId: String, allSymbols: List<SymbolUiModel>): BoardUiModel? {
+        val seedBoard = SeedBoards.findById(boardId) ?: return null
+        val symbolsById = allSymbols.associateBy { it.id }
+        val symbols = seedBoard.symbols.map { seedSymbol ->
+            symbolsById[seedSymbol.id] ?: seedSymbol
+        }
+        return seedBoard.copy(symbols = symbols)
+    }
+
     private suspend fun prepareBoardForDisplay(board: BoardUiModel): BoardUiModel =
         withContext(Dispatchers.IO) {
-            val critical = board.symbols.take(firstPaintWindow)
+            val critical = board.symbols.filter { symbol ->
+                SeedSymbols.isCriticalOffline(symbol.id)
+            }
             val pendingCritical = critical.filter(::needsPersistentDownload)
 
             if (pendingCritical.isNotEmpty()) {
@@ -230,10 +297,20 @@ class CommunicationViewModel @Inject constructor(
         }
 
     private fun needsPersistentDownload(symbol: SymbolUiModel): Boolean {
+        if (symbol.id.startsWith("routine_")) return false
+        if (symbol.imageDownloadStatus == imageStatusFailed) return false
+
         return symbol.imageUrl != null &&
             symbol.localImagePath.isNullOrBlank() &&
             symbol.thumbnailPath.isNullOrBlank() &&
             symbol.imageResId == 0
+    }
+
+    private fun List<SymbolUiModel>.prioritizedForFirstPaint(): List<SymbolUiModel> {
+        val (priority, remaining) = partition { symbol ->
+            SeedSymbols.isCriticalOffline(symbol.id)
+        }
+        return priority + remaining
     }
 
     private suspend fun persistSymbolImage(symbol: SymbolUiModel) {
@@ -266,7 +343,7 @@ class CommunicationViewModel @Inject constructor(
         backgroundPrefetchJob?.cancel()
         backgroundPrefetchJob = viewModelScope.launch(Dispatchers.IO) {
             board.symbols
-                .drop(firstPaintWindow)
+                .prioritizedForFirstPaint()
                 .filter(::needsPersistentDownload)
                 .forEach { persistSymbolImage(it) }
         }

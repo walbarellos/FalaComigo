@@ -112,17 +112,21 @@ class AndroidTtsController(
                 recoverTts(normalizedText)
             }
         } catch (e: Exception) {
+            onErrorListener?.invoke("tts_speak_exception")
             recoverTts(normalizedText)
         }
     }
 
     override fun warmUp() {
-        if (!isInitialized) return
+        if (!isInitialized) {
+            initializeTts()
+            return
+        }
         try {
             // Toca 10ms de silêncio para acordar o hardware de áudio do Android
             tts?.playSilentUtterance(10L, TextToSpeech.QUEUE_ADD, "warmup_${System.currentTimeMillis()}")
         } catch (e: Exception) {
-            // Ignorado, é apenas um warm-up
+            // Warm-up não deve gerar alerta visual; a fala real já reporta erro.
         }
     }
 
@@ -171,6 +175,9 @@ class AndroidTtsController(
     override fun refreshVoices(offlineOnly: Boolean) {
         this.offlineOnly = offlineOnly
         settingsRepository.setVoiceOfflineOnly(offlineOnly)
+        if (!isInitialized) {
+            initializeTts()
+        }
         tts?.let { refreshAvailableVoices(it, offlineOnly) }
     }
 

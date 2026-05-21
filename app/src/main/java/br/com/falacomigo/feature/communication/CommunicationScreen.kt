@@ -25,9 +25,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,6 +70,41 @@ private enum class CommunicationTab(val label: String, val icon: ImageVector) {
 private enum class CaregiverGateAction {
     ORGANIZAR,
     GESTAO
+}
+
+private data class PhraseToken(
+    val id: String,
+    val text: String,
+    val spokenText: String
+)
+
+private fun SymbolUiModel.toPhraseToken(): PhraseToken {
+    val text = label.trim()
+    val spoken = spokenText.ifBlank { label }.trim()
+    return PhraseToken(
+        id = "symbol_${id}_${System.nanoTime()}",
+        text = text,
+        spokenText = spoken
+    )
+}
+
+private fun typedPhraseToken(text: String): PhraseToken {
+    val normalized = text.toPhraseText()
+    return PhraseToken(
+        id = "typed_${System.nanoTime()}",
+        text = normalized,
+        spokenText = normalized
+    )
+}
+
+private fun String.toPhraseText(): String = trim().replace(Regex("\\s+"), " ")
+
+private fun List<PhraseToken>.asSpokenPhrase(draftText: String): String {
+    val tokenTexts = map { token -> token.spokenText.toPhraseText() }.filter { it.isNotBlank() }
+    return buildList {
+        addAll(tokenTexts)
+        draftText.toPhraseText().takeIf { it.isNotBlank() }?.let(::add)
+    }.joinToString(" ").toPhraseText()
 }
 
 private val AppBackground = Color(0xFFF0F4FF)
@@ -134,10 +171,17 @@ fun CommunicationScreen(
 
     var selectedTab by remember { mutableStateOf(CommunicationTab.INICIO) }
     var isEditMode by remember { mutableStateOf(false) }
-    var phraseSymbols by remember { mutableStateOf<List<SymbolUiModel>>(emptyList()) }
+    var phraseTokens by remember { mutableStateOf<List<PhraseToken>>(emptyList()) }
+    var phraseDraftText by remember { mutableStateOf("") }
+    var phraseComposerExpanded by rememberSaveable { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
     var caregiverUnlocked by remember { mutableStateOf(false) }
     var pendingCaregiverAction by remember { mutableStateOf<CaregiverGateAction?>(null) }
+
+    fun commitDraftBeforeSymbol(): List<PhraseToken> {
+        val draft = phraseDraftText.toPhraseText()
+        return if (draft.isNotBlank()) listOf(typedPhraseToken(draft)) else emptyList()
+    }
 
     BackHandler(enabled = isEditMode || currentBoard.id != "comunicacao" || selectedTab != CommunicationTab.INICIO) {
         if (isEditMode) isEditMode = false
@@ -214,26 +258,36 @@ fun CommunicationScreen(
                 .padding(innerPadding)
                 .background(ColorTokens.Background)
         ) {
-            if (selectedTab == CommunicationTab.INICIO && !isEditMode) {
+            if (selectedTab == CommunicationTab.INICIO && !isEditMode && phraseComposerExpanded) {
                 PhraseComposerBar(
-                    phraseSymbols = phraseSymbols,
+                    phraseTokens = phraseTokens,
+                    draftText = phraseDraftText,
                     isSpeaking = state.isSpeaking,
-                    onRemoveAt = { index -> phraseSymbols = phraseSymbols.filterIndexed { i, _ -> i != index } },
-                    onBackspace = { if (phraseSymbols.isNotEmpty()) phraseSymbols = phraseSymbols.dropLast(1) },
-                    onClear = { phraseSymbols = emptyList() },
+                    onMinimize = { phraseComposerExpanded = false },
+                    onDraftChange = { phraseDraftText = it },
+                    onRemoveAt = { index -> phraseTokens = phraseTokens.filterIndexed { i, _ -> i != index } },
+                    onBackspace = {
+                        if (phraseDraftText.isNotEmpty()) {
+                            phraseDraftText = phraseDraftText.dropLast(1)
+                        } else if (phraseTokens.isNotEmpty()) {
+                            phraseTokens = phraseTokens.dropLast(1)
+                        }
+                    },
+                    onClear = {
+                        phraseTokens = emptyList()
+                        phraseDraftText = ""
+                    },
                     onSpeak = {
-                        val text = phraseSymbols.joinToString(" ") { symbol ->
-                            symbol.spokenText.ifBlank { symbol.label }
-                        }.trim()
+                        val text = phraseTokens.asSpokenPhrase(phraseDraftText)
                         if (text.isNotBlank()) {
                             viewModel.onSymbolClick(SymbolUiModel(id = "phrase_${System.currentTimeMillis()}", label = text, spokenText = text))
                         }
                     },
                     onFavorite = {
-                        val text = phraseSymbols.joinToString(" ") { symbol ->
-                            symbol.spokenText.ifBlank { symbol.label }
-                        }.trim()
-                        viewModel.saveFavoritePhrase(text)
+                        val text = phraseTokens.asSpokenPhrase(phraseDraftText)
+                        if (text.isNotBlank()) {
+                            viewModel.saveFavoritePhrase(text)
+                        }
                     }
                 )
                 SpeechErrorBanner(
@@ -243,7 +297,12 @@ fun CommunicationScreen(
             }
 
             if (selectedTab == CommunicationTab.INICIO && !isRoutineBoard) {
-                BoardSelectorRow(currentBoardId = currentBoard.id, onBoardSelect = viewModel::selectBoard)
+                BoardSelectorRow(
+                    currentBoardId = currentBoard.id,
+                    showPhraseExpandButton = !phraseComposerExpanded && !isEditMode,
+                    onExpandPhrase = { phraseComposerExpanded = true },
+                    onBoardSelect = viewModel::selectBoard
+                )
             }
 
             if (selectedTab == CommunicationTab.INICIO && !isEditMode) {
@@ -270,7 +329,8 @@ fun CommunicationScreen(
                                     if (symbol.id.startsWith("routine_")) {
                                         viewModel.onSymbolClick(symbol)
                                     } else {
-                                        phraseSymbols = (phraseSymbols + symbol).takeLast(24)
+                                        phraseTokens = (phraseTokens + commitDraftBeforeSymbol() + symbol.toPhraseToken()).takeLast(24)
+                                        phraseDraftText = ""
                                         if (state.speakOnTapEnabled) {
                                             viewModel.onSymbolClick(symbol)
                                         } else {
@@ -550,14 +610,19 @@ private fun SpeechErrorBanner(
 
 @Composable
 private fun PhraseComposerBar(
-    phraseSymbols: List<SymbolUiModel>,
+    phraseTokens: List<PhraseToken>,
+    draftText: String,
     isSpeaking: Boolean,
+    onMinimize: () -> Unit,
+    onDraftChange: (String) -> Unit,
     onRemoveAt: (Int) -> Unit,
     onBackspace: () -> Unit,
     onClear: () -> Unit,
     onSpeak: () -> Unit,
     onFavorite: () -> Unit
 ) {
+    val hasPhraseContent = phraseTokens.isNotEmpty() || draftText.isNotBlank()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -565,6 +630,13 @@ private fun PhraseComposerBar(
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            PhraseIconActionButton(
+                icon = Icons.Default.ExpandLess,
+                enabled = true,
+                contentDescription = "Minimizar frase",
+                onClick = onMinimize
+            )
+            Spacer(Modifier.width(6.dp))
             Text(
                 text = "FRASE",
                 color = TextSoft,
@@ -574,43 +646,75 @@ private fun PhraseComposerBar(
             )
             PhraseIconActionButton(
                 icon = Icons.Default.StarBorder,
-                enabled = phraseSymbols.isNotEmpty(),
+                enabled = hasPhraseContent,
+                contentDescription = "Salvar frase favorita",
                 onClick = onFavorite
             )
             Spacer(Modifier.width(6.dp))
-            PhraseActionButton(label = "Apagar", enabled = phraseSymbols.isNotEmpty(), onClick = onBackspace)
+            PhraseActionButton(label = "Apagar", enabled = hasPhraseContent, onClick = onBackspace)
             Spacer(Modifier.width(6.dp))
-            PhraseActionButton(label = "Falar", enabled = phraseSymbols.isNotEmpty() && !isSpeaking, filled = true, onClick = onSpeak)
+            PhraseActionButton(
+                label = "Falar",
+                icon = Icons.AutoMirrored.Filled.VolumeUp,
+                enabled = hasPhraseContent && !isSpeaking,
+                filled = true,
+                onClick = onSpeak
+            )
             Spacer(Modifier.width(6.dp))
-            PhraseActionButton(label = "Limpar", enabled = phraseSymbols.isNotEmpty(), onClick = onClear)
+            PhraseActionButton(label = "Limpar", enabled = hasPhraseContent, onClick = onClear)
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .height(42.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF8FAFF))
-                .border(1.dp, Color(0xFFDDE7FA), RoundedCornerShape(12.dp))
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (phraseSymbols.isEmpty()) {
-                Text(
-                    text = "Toque nos símbolos para montar uma frase...",
-                    color = Color(0xFFCBD5E1),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            } else {
-                phraseSymbols.forEachIndexed { index, symbol ->
-                    PhraseWordChip(text = symbol.label, onClick = { onRemoveAt(index) })
+        if (phraseTokens.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .height(38.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF8FAFF))
+                    .border(1.dp, Color(0xFFDDE7FA), RoundedCornerShape(12.dp))
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                phraseTokens.forEachIndexed { index, token ->
+                    PhraseWordChip(text = token.text, onClick = { onRemoveAt(index) })
                 }
             }
         }
+
+        OutlinedTextField(
+            value = draftText,
+            onValueChange = onDraftChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .height(56.dp),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            placeholder = {
+                Text(
+                    text = "Toque nos símbolos ou escreva uma frase...",
+                    color = Color(0xFFCBD5E1),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF8FAFF),
+                unfocusedContainerColor = Color(0xFFF8FAFF),
+                disabledContainerColor = Color(0xFFF8FAFF),
+                focusedBorderColor = Color(0xFFDDE7FA),
+                unfocusedBorderColor = Color(0xFFDDE7FA),
+                cursorColor = Brand,
+                focusedTextColor = TextPrimary,
+                unfocusedTextColor = TextPrimary
+            )
+        )
     }
 }
 
@@ -618,6 +722,7 @@ private fun PhraseComposerBar(
 private fun PhraseIconActionButton(
     icon: ImageVector,
     enabled: Boolean,
+    contentDescription: String,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(9.dp)
@@ -632,7 +737,7 @@ private fun PhraseIconActionButton(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = "Salvar favorito",
+            contentDescription = contentDescription,
             tint = if (enabled) Brand else Color(0xFFCBD5E1),
             modifier = Modifier.size(16.dp)
         )
@@ -642,6 +747,7 @@ private fun PhraseIconActionButton(
 @Composable
 private fun PhraseActionButton(
     label: String,
+    icon: ImageVector? = null,
     enabled: Boolean,
     filled: Boolean = false,
     onClick: () -> Unit
@@ -659,15 +765,28 @@ private fun PhraseActionButton(
     }
     Box(
         modifier = Modifier
-            .height(28.dp)
+            .height(if (filled) 34.dp else 28.dp)
             .clip(shape)
             .background(background)
             .border(1.dp, if (enabled && !filled) Color(0xFFDDE7FA) else background, shape)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = if (filled) 12.dp else 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = label, color = foreground, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = foreground,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+            Text(text = label, color = foreground, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -824,7 +943,12 @@ private fun FalaComigoBottomBar(
 }
 
 @Composable
-private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> Unit) {
+private fun BoardSelectorRow(
+    currentBoardId: String,
+    showPhraseExpandButton: Boolean,
+    onExpandPhrase: () -> Unit,
+    onBoardSelect: (String) -> Unit
+) {
     val chips = remember {
         listOf(
             "comunicacao" to "Prancha",
@@ -844,8 +968,12 @@ private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> 
             .horizontalScroll(rememberScrollState())
             .background(Color.White)
             .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        if (showPhraseExpandButton) {
+            PhraseExpandFilterButton(onClick = onExpandPhrase)
+        }
         chips.forEach { (id, label) ->
             val onSelect = remember(id) { { onBoardSelect(id) } }
             FilterPill(
@@ -855,6 +983,26 @@ private fun BoardSelectorRow(currentBoardId: String, onBoardSelect: (String) -> 
                 onClick = onSelect
             )
         }
+    }
+}
+
+@Composable
+private fun PhraseExpandFilterButton(onClick: () -> Unit) {
+    val shape = RoundedCornerShape(99.dp)
+    Box(
+        modifier = Modifier
+            .size(width = 38.dp, height = 30.dp)
+            .clip(shape)
+            .background(Brand)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Expandir frase",
+            tint = Color.White,
+            modifier = Modifier.size(17.dp)
+        )
     }
 }
 

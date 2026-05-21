@@ -12,10 +12,10 @@ fun SymbolUiModel.resolveImageModel(
     preferThumbnail: Boolean = false,
 ): Any? = when {
     // 1. Miniatura persistente (Otimização para Grids)
-    preferThumbnail && !thumbnailPath.isNullOrBlank() -> File(thumbnailPath)
+    preferThumbnail && thumbnailPath.asExistingImageFile() != null -> thumbnailPath.asExistingImageFile()
     
     // 2. Imagem local em tamanho real (Garantia de Offline)
-    !localImagePath.isNullOrBlank() -> File(localImagePath)
+    localImagePath.asExistingImageFile() != null -> localImagePath.asExistingImageFile()
     
     // 3. Recurso embutido (Símbolos base do app)
     imageResId != 0 -> imageResId
@@ -31,7 +31,13 @@ fun SymbolUiModel.resolveImageModel(
     !imageUrl.isNullOrBlank() -> imageUrl
     
     // 6. Legado: Caminho absoluto no imagePath
-    !imagePath.isNullOrBlank() && imagePath.startsWith("/") -> File(imagePath)
+    !imagePath.isNullOrBlank() && imagePath.startsWith("/") -> imagePath.asExistingImageFile()
     
     else -> null
+}
+
+private fun String?.asExistingImageFile(): File? {
+    if (isNullOrBlank()) return null
+    val file = File(this)
+    return file.takeIf { it.isFile && it.length() > 0L }
 }

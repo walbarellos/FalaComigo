@@ -93,7 +93,11 @@ class SymbolRepository @Inject constructor(
     }
 
     suspend fun saveSymbols(symbols: List<SymbolUiModel>) {
-        symbolDao.insertSymbols(symbols.map { it.toEntity() })
+        symbolDao.insertSymbols(symbols.map { symbol ->
+            symbol.toEntity().copy(
+                imageDownloadStatus = if (symbol.imageUrl.isNullOrBlank()) "READY" else "PENDING"
+            )
+        })
     }
 
     suspend fun deleteSymbol(id: String) {

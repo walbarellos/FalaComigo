@@ -1,7 +1,5 @@
 package br.com.falacomigo.data.seed
 
-import android.util.Log
-import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.data.repository.ArasaacRepository
 import br.com.falacomigo.data.repository.BoardRepository
 import br.com.falacomigo.data.repository.RoutineRepository
@@ -37,24 +35,21 @@ class DatabaseSeeder @Inject constructor(
         val seedBoards = SeedBoardsData.boards
         seedBoards.forEach { seedBoard ->
             val dbBoard = boardRepository.getBoardById(seedBoard.id)
+            val seedSymbolIds = seedBoard.symbols.map { it.id }
             if (dbBoard != null) {
-                // The board exists. Ensure it has all the symbols it should have from the seed.
                 val dbBoardWithSymbols = boardRepository.getBoardWithSymbols(seedBoard.id)
                 val existingSymbolIds = dbBoardWithSymbols?.symbols?.map { it.id }?.toSet() ?: emptySet()
-                
-                seedBoard.symbols.forEachIndexed { index, symbol ->
-                    if (!existingSymbolIds.contains(symbol.id)) {
-                        // Append missing symbol to the board
-                        val position = (dbBoardWithSymbols?.symbols?.size ?: 0) + index
-                        boardRepository.addSymbolToBoard(seedBoard.id, symbol.id, position)
-                    }
+                val missingSymbolIds = seedSymbolIds.filterNot(existingSymbolIds::contains)
+                if (missingSymbolIds.isNotEmpty()) {
+                    boardRepository.addSymbolsToBoard(
+                        boardId = seedBoard.id,
+                        symbolIds = missingSymbolIds,
+                        startPosition = dbBoardWithSymbols?.symbols?.size ?: 0
+                    )
                 }
             } else {
-                // The board is completely missing in DB (maybe a new filter was added)
                 boardRepository.saveBoard(seedBoard)
-                seedBoard.symbols.forEachIndexed { index, symbol ->
-                    boardRepository.addSymbolToBoard(seedBoard.id, symbol.id, index)
-                }
+                boardRepository.addSymbolsToBoard(seedBoard.id, seedSymbolIds, startPosition = 0)
             }
         }
     }
@@ -86,9 +81,7 @@ class DatabaseSeeder @Inject constructor(
         val boards = SeedBoardsData.boards
         boards.forEach { board ->
             boardRepository.saveBoard(board)
-            board.symbols.forEachIndexed { index, symbol ->
-                boardRepository.addSymbolToBoard(board.id, symbol.id, index)
-            }
+            boardRepository.addSymbolsToBoard(board.id, board.symbols.map { it.id }, startPosition = 0)
         }
     }
 

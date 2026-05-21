@@ -4,7 +4,6 @@ import android.content.Context
 import br.com.falacomigo.core.model.BoardLayoutMode
 import br.com.falacomigo.core.model.BoardUiModel
 import br.com.falacomigo.core.model.FavoritePhrase
-import br.com.falacomigo.core.model.SymbolUiModel
 import br.com.falacomigo.core.seed.SeedSymbols
 import br.com.falacomigo.core.tts.TtsController
 import br.com.falacomigo.data.images.SymbolImageStore
@@ -25,6 +24,7 @@ import kotlinx.coroutines.test.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,12 +66,47 @@ class CommunicationViewModelTest {
         every { routineRepository.getAllRoutines() } returns flowOf(emptyList())
         every { symbolRepository.getAllSymbols() } returns flowOf(emptyList())
         every { boardRepository.getBoardWithSymbolsFlow(any()) } returns flowOf(BoardUiModel("comunicacao", "Comunicação"))
+        every { imageStore.getLocalFile(any()) } returns null
+        every { imageStore.getThumbnailFile(any()) } returns null
+        coEvery { imageStore.ensureDownloaded(any(), any()) } returns null
         
+        viewModel = newViewModel()
+    }
+
+    private fun newViewModel(): CommunicationViewModel {
+        return CommunicationViewModel(
+            context,
+            ttsController,
+            settingsRepository,
+            routineRepository,
+            boardRepository,
+            symbolRepository,
+            speakSymbolUseCase,
+            moveSymbolUseCase,
+            searchSymbolsUseCase,
+            saveRoutineUseCase,
+            imageStore
+        )
+    }
+
+    @Test
+    fun `board nulo encerra preparo e usa fallback de comunicacao essencial`() = runTest(testDispatcher) {
+        every { boardRepository.getBoardWithSymbolsFlow(any()) } returns flowOf<BoardUiModel?>(null)
+
         viewModel = CommunicationViewModel(
             context, ttsController, settingsRepository, routineRepository, 
             boardRepository, symbolRepository, speakSymbolUseCase, 
             moveSymbolUseCase, searchSymbolsUseCase, saveRoutineUseCase, imageStore
         )
+        advanceUntilIdle()
+        Thread.sleep(500)
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertFalse("state=$state", state.isBootstrappingImages)
+        assertEquals("comunicacao", state.currentBoard.id)
+        assertTrue(state.currentBoard.symbols.isNotEmpty())
+        assertTrue(state.currentBoard.symbols.any { it.id == "agua" })
     }
 
     @Test
@@ -105,7 +140,7 @@ class CommunicationViewModelTest {
         viewModel.recordSymbolUse(symbol)
         advanceUntilIdle()
 
-        coVerify { symbolRepository.updateUsage(symbol.id) }
+        coVerify(timeout = 1_000) { symbolRepository.updateUsage(symbol.id) }
         coVerify(exactly = 0) { speakSymbolUseCase(any()) }
     }
 
@@ -127,7 +162,11 @@ class CommunicationViewModelTest {
         viewModel.onSymbolClick(symbol)
         advanceUntilIdle()
         
-        // State should remain usable
         assertFalse(viewModel.state.value.isSpeaking)
+        assertNull(viewModel.state.value.speakingSymbolId)
+        assertEquals(
+            "Não consegui falar agora. Verifique Voz e Fala em Configurações.",
+            viewModel.state.value.speechErrorMessage
+        )
     }
 }

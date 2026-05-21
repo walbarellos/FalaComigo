@@ -114,6 +114,14 @@ class BoardRepository @Inject constructor(
         )
     }
 
+    suspend fun addSymbolsToBoard(boardId: String, symbolIds: List<String>, startPosition: Int) {
+        if (symbolIds.isEmpty()) return
+        val boardSymbols = symbolIds.mapIndexed { index, symbolId ->
+            BoardSymbolEntity(boardId = boardId, symbolId = symbolId, position = startPosition + index)
+        }
+        boardDao.insertBoardSymbols(boardSymbols)
+    }
+
     suspend fun removeSymbolFromBoard(boardId: String, symbolId: String) =
         boardDao.removeSymbolFromBoard(boardId, symbolId)
 

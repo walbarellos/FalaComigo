@@ -8,14 +8,16 @@ Este arquivo descreve o estado de release do workspace atual. Ele substitui hash
 - `:app:testDebugUnitTest`: PASS
 - `:app:assembleRelease`: PASS
 - Debug APK: assinado com chave debug e verificavel.
-- Release APK: v0.4.2-beta assinado e funcional.
-- Distribuicao: BETA aberta via GitHub branch beta.
+- Release APK: v0.4.2-beta assinado e verificavel localmente.
+- Distribuicao: pacote interno controlado; Play Store permanece gate futuro.
+- SHA-256 atual: `ab6ea0d192383e8407188e6230586994b387daada6536302c59e67a529406afb`
 
 ## Artefatos
 
 ```text
-FalaComigo-v0.4.2-beta.apk (na raiz)
 app/build/outputs/apk/release/app-release.apk
+app/build/outputs/apk/release/app-release.apk.sha256
+build/reports/falacomigo/build-evidence-release.md
 ```
 
 ## Comandos de Validacao
@@ -25,8 +27,16 @@ app/build/outputs/apk/release/app-release.apk
 ./gradlew :app:testDebugUnitTest --no-daemon
 ./gradlew :app:assembleDebug --no-daemon
 ./gradlew :app:assembleRelease --no-daemon
-scripts/verify_apk_integrity.sh app/build/outputs/apk/debug/app-debug.apk
-scripts/verify_apk_integrity.sh app/build/outputs/apk/release/app-release-unsigned.apk
+scripts/check_release_safety.sh
+scripts/verify_apk_integrity.sh app/build/outputs/apk/release/app-release.apk --write-sha256
+scripts/write_build_evidence.sh release app/build/outputs/apk/release/app-release.apk
+scripts/package_internal_release.sh app/build/outputs/apk/release/app-release.apk
+```
+
+Execucao completa do ciclo local + aparelho real:
+
+```bash
+scripts/run_release_device_cycle.sh
 ```
 
 ## Gate de Assinatura
@@ -41,7 +51,7 @@ scripts/verify_apk_integrity.sh retorna SIGNATURE: PASS
 SHA-256 e gerado do APK assinado real
 ```
 
-Enquanto o arquivo gerado for `app-release-unsigned.apk`, ele serve apenas para validar build/R8.
+Arquivo `app-release-unsigned.apk`, se existir, serve apenas para validar build/R8 e nao deve ser distribuido.
 
 ## Gate de Segredos e Logs
 
@@ -53,4 +63,21 @@ sem key.properties no repositorio
 sem keystore no repositorio
 sem HttpLoggingInterceptor.Level.BODY
 sem println/System.out/Log.* em app/src/main/java/br/com/falacomigo
+```
+
+## Gate de Aparelho Real
+
+Instalacao e smoke check devem ser executados apenas com aparelho conectado via ADB:
+
+```bash
+scripts/install_release_apk.sh app/build/outputs/apk/release/app-release.apk
+scripts/check_installed_package.sh
+scripts/device_smoke_check.sh
+scripts/write_device_evidence.sh
+```
+
+Se houver conflito de assinatura entre debug e release:
+
+```bash
+scripts/install_release_apk.sh app/build/outputs/apk/release/app-release.apk --clean-on-signature-mismatch
 ```
