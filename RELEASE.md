@@ -8,7 +8,7 @@ Este arquivo descreve o estado de release do workspace atual. Ele substitui hash
 - `:app:testDebugUnitTest`: PASS
 - `:app:assembleRelease`: PASS
 - Debug APK: assinado com chave debug e verificavel.
-- Release APK: v0.4.4-beta assinado e verificavel localmente.
+- Release APK: v0.4.2-beta assinado e verificavel localmente.
 - Distribuicao: pacote interno controlado; Play Store permanece gate futuro.
 - SHA-256 atual: `d85f74d73e3ddc0af48a0e1a1f79f31490fa2d186aa4504f3933221a755f2026`
 
