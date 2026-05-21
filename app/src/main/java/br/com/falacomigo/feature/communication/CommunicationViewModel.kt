@@ -141,6 +141,15 @@ class CommunicationViewModel @Inject constructor(
                         val communicationBoard = board?.takeIf { it.symbols.isNotEmpty() }
                             ?: seedBoardFallback("comunicacao", allSymbols)
                             ?: return@map null
+                        
+                        // Busca IDs já presentes na prancha principal para evitar duplicatas
+                        val existingIds = communicationBoard.symbols.map { it.id }.toSet()
+                        
+                        // Símbolos customizados que NÃO estão na prancha nem são rotinas
+                        val customSymbols = allSymbols.filter { 
+                            it.isCustom && it.id !in existingIds && !it.id.startsWith("routine_") 
+                        }
+
                         val firstSymbolIds = routines.mapNotNull { it.symbols.firstOrNull() }.toSet()
                         val symbolsById = allSymbols.filter { it.id in firstSymbolIds }.associateBy { it.id }
                         val routineSymbols = routines.map { r ->
@@ -157,7 +166,8 @@ class CommunicationViewModel @Inject constructor(
                                 isCustom = true
                             )
                         }
-                        communicationBoard.copy(symbols = routineSymbols + communicationBoard.symbols)
+                        // Junta tudo: Rotinas -> Símbolos da Prancha -> Novos Símbolos Customizados
+                        communicationBoard.copy(symbols = routineSymbols + communicationBoard.symbols + customSymbols)
                     }
                 }
                 filter == "urgente" -> {
@@ -175,8 +185,22 @@ class CommunicationViewModel @Inject constructor(
                             )
                     }
                 }
+                filter == "personalizados" -> {
+                    flowOf(BoardUiModel(
+                        id = "personalizados",
+                        title = "Personalizados",
+                        symbols = allSymbols.filter { it.isCustom && !it.id.startsWith("routine_") },
+                        columns = 4
+                    ))
+                }
                 else -> {
-                    val filtered = allSymbols.filter { it.categoryId == filter }
+                    val categoryIds = when (filter) {
+                        "necessidades" -> listOf("necessidades", "basic", "saude")
+                        "atividades" -> listOf("atividades", "lugares", "acoes")
+                        "sensorial" -> listOf("sensorial", "emocoes")
+                        else -> listOf(filter)
+                    }
+                    val filtered = allSymbols.filter { it.categoryId in categoryIds }
                     val category = SymbolCategory.fromId(filter)
                     val board = if (filtered.isNotEmpty()) {
                         BoardUiModel(id = filter, title = category.title, symbols = filtered, columns = 4)

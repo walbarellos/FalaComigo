@@ -59,7 +59,7 @@ class SymbolRepository @Inject constructor(
             imageDownloadStatus = existing?.imageDownloadStatus 
                 ?: if (symbol.imageUrl.isNullOrBlank()) "READY" else "PENDING",
             cachedAt = existing?.cachedAt,
-            lastUsedAt = existing?.lastUsedAt ?: symbol.lastUsedAt ?: System.currentTimeMillis()
+            lastUsedAt = existing?.lastUsedAt ?: symbol.lastUsedAt ?: 0L
         )
         symbolDao.insertSymbol(merged)
     }

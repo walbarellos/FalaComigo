@@ -122,9 +122,10 @@ private data class FilterChipTheme(val accent: Color)
 private fun filterTheme(id: String): FilterChipTheme = when (id) {
     "comunicacao" -> FilterChipTheme(Brand)
     "recentes" -> FilterChipTheme(Color(0xFF64748B))
+    "personalizados" -> FilterChipTheme(Color(0xFF059669))
     "necessidades", "alimentacao", "atividades" -> FilterChipTheme(ActiveBlue)
     "social" -> FilterChipTheme(Color(0xFF7C3AED))
-    "emocoes" -> FilterChipTheme(Color(0xFFEA580C))
+    "emocoes", "sensorial" -> FilterChipTheme(Color(0xFFEA580C))
     "numeral" -> FilterChipTheme(Color(0xFF0891B2))
     else -> FilterChipTheme(Brand)
 }
@@ -953,8 +954,10 @@ private fun BoardSelectorRow(
         listOf(
             "comunicacao" to "Prancha",
             "recentes" to "Recentes",
+            "personalizados" to "Meus Itens",
             "necessidades" to "Necessidades",
             "social" to "Social",
+            "sensorial" to "Sentir",
             "emocoes" to "Emoções",
             "numeral" to "Números",
             "alimentacao" to "Comer",

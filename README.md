@@ -1,4 +1,4 @@
-# Fala Comigo — The Apex Engine (v0.4.3-beta)
+# Fala Comigo — The Apex Engine (v0.4.4-beta)
 
 [![Fala Comigo](https://img.shields.io/badge/Fala-Comigo-007AFF?style=for-the-badge&logo=speech)](https://github.com/walbarellos/FalaComigo)
 [![Versão](https://img.shields.io/github/v/release/walbarellos/FalaComigo?include_prereleases&style=flat-square)](https://github.com/walbarellos/FalaComigo/releases/latest)
@@ -27,11 +27,11 @@
     <i>Desenho direto via GPU • Arquitetura Determinística MVI • Feedback Háptico Sincronizado</i>
   </p>
 
-  <a href="https://github.com/walbarellos/FalaComigo/blob/beta/FalaComigo-v0.4.3-beta.apk">
-    <img src="https://img.shields.io/badge/DOWNLOAD_BETA_APK-v0.4.3-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
+  <a href="https://github.com/walbarellos/FalaComigo/blob/beta/FalaComigo-v0.4.4-beta.apk">
+    <img src="https://img.shields.io/badge/DOWNLOAD_BETA_APK-v0.4.4-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
-  <code>SHA-256 local verificado (v0.4.3-beta): 069f3111bfd4a9be00c147e98c48b0aed395363dbe41188f6ee10d5ef49b1fde</code>
+  <code>SHA-256 local verificado (v0.4.4-beta): d85f74d73e3ddc0af48a0e1a1f79f31490fa2d186aa4504f3933221a755f2026</code>
 </div>
 
 ---
@@ -45,7 +45,7 @@ Tabela de Conteúdos
 1. Badge e Status do Projeto
 2. Segurança e Integridade (Auditado)
 3. Visão Geral do Projeto
-4. Funcionalidades Principais (v0.4.3-beta Apex)
+4. Funcionalidades Principais (v0.4.4-beta Apex)
 5. Arquitetura e Tecnologias
 6. Instalação e Verificação
 7. Como Contribuir
@@ -64,10 +64,10 @@ Tabela de Conteúdos
 
 ## 2. Segurança e Integridade (Auditado)
 
-O Fala Comigo v0.4.3-beta foi submetido a validações de estabilidade e integridade para garantir uma experiência segura. Esta versão beta corrige especificamente o crash de inicialização em builds de produção.
+O Fala Comigo v0.4.4-beta foi submetido a validações de estabilidade e integridade para garantir uma experiência segura. Esta versão beta corrige especificamente o crash de inicialização em builds de produção.
 
 ### Selo de Autenticidade (SHA-256)
-Código SHA-256 local verificado da v0.4.3-beta: `069f3111bfd4a9be00c147e98c48b0aed395363dbe41188f6ee10d5ef49b1fde`
+Código SHA-256 local verificado da v0.4.4-beta: `d85f74d73e3ddc0af48a0e1a1f79f31490fa2d186aa4504f3933221a755f2026`
 
 ---
 
@@ -81,7 +81,7 @@ O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alt
 
 ---
 
-## 4. Funcionalidades Principais (v0.4.3-beta Apex)
+## 4. Funcionalidades Principais (v0.4.4-beta Apex)
 
 ### Engenharia de Visualização
 *   **Apex Engine**: Sistema de renderização Jetpack Compose (120 FPS) otimizado para baixa latência.
@@ -109,12 +109,12 @@ O **Fala Comigo** é um aplicativo brasileiro de Comunicação Aumentativa e Alt
 ## 6. Instalação e Verificação
 
 ### 1. Baixe o APK Beta
-Acesse a [Branch Beta](https://github.com/walbarellos/FalaComigo/tree/beta) ou as [Releases Oficiais](https://github.com/walbarellos/FalaComigo/releases) e baixe o arquivo `FalaComigo-v0.4.3-beta.apk`.
+Acesse a [Branch Beta](https://github.com/walbarellos/FalaComigo/tree/beta) ou as [Releases Oficiais](https://github.com/walbarellos/FalaComigo/releases) e baixe o arquivo `FalaComigo-v0.4.4-beta.apk`.
 
 ### 2. Verifique o Hash
 Execute no seu terminal para garantir a integridade:
-*   **macOS/Linux**: `sha256sum FalaComigo-v0.4.3-beta.apk`
-*   **Windows**: `certutil -hashfile FalaComigo-v0.4.3-beta.apk SHA256`
+*   **macOS/Linux**: `sha256sum FalaComigo-v0.4.4-beta.apk`
+*   **Windows**: `certutil -hashfile FalaComigo-v0.4.4-beta.apk SHA256`
 
 ### 3. Gates locais de build/deploy
 No workspace Android, use os scripts operacionais:
@@ -143,7 +143,7 @@ scripts/check_play_store_readiness.sh
 
 ## 8. Roadmap e Versões Futuras
 
-### Concluído (v0.4.3-beta)
+### Concluído (v0.4.4-beta)
 - [x] Correção de crash R8/ProGuard (TypeToken).
 - [x] Implementação de layout Edge-to-Edge real.
 - [x] Padronização cromática do Design System em todas as abas.
