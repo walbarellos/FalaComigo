@@ -45,7 +45,7 @@ sealed class CommunicationAction {
 
 data class CommunicationState(
     val currentBoard: BoardUiModel = BoardUiModel(id = "", title = ""),
-    val isBootstrappingImages: Boolean = true,
+    val isBootstrappingImages: Boolean = false,
     val bootstrapProgress: Float = 0f,
     val readyImageCount: Int = 0,
     val totalCriticalImages: Int = 0,
@@ -215,42 +215,22 @@ class CommunicationViewModel @Inject constructor(
         .flowOn(Dispatchers.Default)
         .onEach { board ->
             if (board != null) {
-                if (!board.hasBlockingCriticalDownloads()) {
-                    val grouped = board.symbols.groupBy { it.category }
-                    reduce {
-                        it.copy(
-                            currentBoard = board,
-                            groupedSymbols = grouped,
-                            isBootstrappingImages = false,
-                            bootstrapProgress = 1f,
-                            readyImageCount = 0,
-                            totalCriticalImages = 0
-                        )
-                    }
-                }
-                val preparedBoard = prepareBoardForDisplay(board)
-                val grouped = preparedBoard.symbols.groupBy { it.category }
+                val grouped = board.symbols.groupBy { it.category }
                 reduce { 
                     it.copy(
-                        currentBoard = preparedBoard, 
+                        currentBoard = board, 
                         groupedSymbols = grouped,
-                        isBootstrappingImages = false,
-                        bootstrapProgress = 1f,
-                        readyImageCount = 0,
-                        totalCriticalImages = 0
+                        isBootstrappingImages = false
                     ) 
                 }
-                scheduleBackgroundPrefetch(preparedBoard)
+                scheduleBackgroundPrefetch(board)
             } else {
                 val fallbackBoard = fallbackBoardForFilter(_activeFilter.value)
                 reduce {
                     it.copy(
                         currentBoard = fallbackBoard,
                         groupedSymbols = emptyMap(),
-                        isBootstrappingImages = false,
-                        bootstrapProgress = 1f,
-                        readyImageCount = 0,
-                        totalCriticalImages = 0
+                        isBootstrappingImages = false
                     )
                 }
             }

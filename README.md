@@ -31,7 +31,7 @@
     <img src="https://img.shields.io/badge/DOWNLOAD_BETA_APK-v0.4.2-white?style=for-the-badge&logo=android&logoColor=black&labelColor=3DDC84" alt="Download APK" />
   </a>
   <br />
-  <code>SHA-256 local verificado (v0.4.2-beta): d85f74d73e3ddc0af48a0e1a1f79f31490fa2d186aa4504f3933221a755f2026</code>
+  <code>SHA-256 local verificado (v0.4.2-beta): a9a98bc5693ae60a92b1495f2394182c6d6913bdfbf4d4dc01e8d986743c0fce</code>
 </div>
 
 ---
@@ -67,7 +67,7 @@ Tabela de Conteúdos
 O Fala Comigo v0.4.2-beta foi submetido a validações de estabilidade e integridade para garantir uma experiência segura. Esta versão beta corrige especificamente o crash de inicialização em builds de produção.
 
 ### Selo de Autenticidade (SHA-256)
-Código SHA-256 local verificado da v0.4.2-beta: `d85f74d73e3ddc0af48a0e1a1f79f31490fa2d186aa4504f3933221a755f2026`
+Código SHA-256 local verificado da v0.4.2-beta: `a9a98bc5693ae60a92b1495f2394182c6d6913bdfbf4d4dc01e8d986743c0fce`
 
 ---
 
